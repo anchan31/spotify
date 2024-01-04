@@ -4,6 +4,7 @@ const upperContainer = document.querySelector('.upper-container');
 const lowerContainer = document.querySelector('.lower-container');
 const musicName = upperContainer.querySelector('.song-details .name');
 const musicList = center.querySelector(".music-list");
+const allLiTags = document.querySelectorAll("ul li");
       musicArtist = upperContainer.querySelector('.song-details .artist'),
       musicImg = mainContainer.querySelector('.img-area img'),
       mainAudio = lowerContainer.querySelector('#main-audio'),
