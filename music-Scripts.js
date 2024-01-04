@@ -206,7 +206,7 @@ for(let i = 0; i < allMusic.length; i++) {
     
     ulTag.insertAdjacentHTML("beforeend", liTag);
     let liAudioDuration = ulTag.querySelector(`#${allMusic[i].src}`);
-    let liAudioTag = ulTag.querySelector(`.${allMusic[i].src}`);
+    let liAudioTag = ulTag.querySelector(`#audio_${allMusic[i].src}`);
 
     liAudioTag.addEventListener("loadeddata", ()=>{
         let audioDuration = liAudioTag.duration;
