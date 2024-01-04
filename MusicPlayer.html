@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="style.css" class="re">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" href="images/favicon-32x32.png" type="image/x-icon">
+    <title>Chandan's Spotify</title>
+</head>
+<body>
+    <div class="center">
+        <div class="container">
+            <div class="main-container">
+                <div class="img-area">
+                    <img src="" alt="">
+                </div>
+            </div>
+            <div class="side-container">
+                <div class="upper-container">
+                    <div class="song-details">
+                        <p class="name"></p>
+                        <p class="artist"></p>
+                    </div>
+                </div>
+                <div class="lower-container">
+                    <div class="progress-area">
+                        <div class="progress-bar"></div>
+                    </div>                
+                    <div class="timer">
+                        <span class="current"></span>
+                        <span class="duration"></span>
+                    </div>
+                    <audio id="main-audio" src=""></audio>
+                    <div class="controls">
+                        <i id="repeat-plist" class="material-icons">repeat</i>
+                        <i id="prev" class="material-icons">skip_previous</i>
+                        <div class="play-pause">
+                            <i class="material-icons">play_arrow</i>
+                        </div>
+                        <i id="next" class="material-icons">skip_next</i>
+                        <i id="more-music" class="material-icons">queue_music</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="music-list">
+            <div class="header">
+                <div class="row">
+                    <i class="material-icons">queue_music</i>
+                    <span>Music List</span>
+                </div>
+                <i id="close" class="material-icons">close</i>
+            </div>
+            <ul>
+
+            </ul>
+        </div>
+    </div>
+    <script src="music-list.js"></script>
+    <script src="music-Scripts.js"></script>
+</body>
+</html>
