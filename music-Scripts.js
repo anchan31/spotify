@@ -4,7 +4,7 @@ const upperContainer = document.querySelector('.upper-container');
 const lowerContainer = document.querySelector('.lower-container');
 const musicName = upperContainer.querySelector('.song-details .name');
 const musicList = center.querySelector(".music-list");
-const allLiTags = document.querySelectorAll("ul li");
+const liTags = ulTag.querySelectorAll("li");
       musicArtist = upperContainer.querySelector('.song-details .artist'),
       musicImg = mainContainer.querySelector('.img-area img'),
       mainAudio = lowerContainer.querySelector('#main-audio'),
@@ -223,31 +223,26 @@ for(let i = 0; i < allMusic.length; i++) {
     });
 
 }
-
-
-const allLiTags = ulTag.querySelectorAll("li");
 function playingNow(){
-    for (let j = 0; j < allLiTags.length; j++) {
-        let audioTag = allLiTags[j].querySelector(".audio-duration")
+    for (let j = 0; j < liTags.length; j++) {
+        let audioTag = liTags[j].querySelector(".audio-duration")
 
-        if(allLiTags[j].classList.contains("playing")){
-            allLiTags[j].classList.remove("playing");
+        if(liTags[j].classList.contains("playing")){
+            liTags[j].classList.remove("playing");
 
             let adDuration = audioTag.getAttribute("t-duration");
             audioTag.innerText = adDuration;
         }
 
-
-
-        if(allLiTags[j].getAttribute("li-index") == musicIndex){
-            allLiTags[j].classList.add("playing");
+        if(liTags[j].getAttribute("li-index") == musicIndex){
+            liTags[j].classList.add("playing");
             audioTag.innerText = "Playing";
         }
-    
-    
-        allLiTags[j].setAttribute("onclick", "clicked(this)")
+
+        liTags[j].setAttribute("onclick", "clicked(this)")
     }
 }
+
 
 
 
