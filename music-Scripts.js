@@ -223,9 +223,9 @@ for(let i = 0; i < allMusic.length; i++) {
     });
 
 }
-function playingNow(){
+function playingNow() {
     for (let j = 0; j < liTags.length; j++) {
-        let audioTag = liTags[j].querySelector(".audio-duration")
+        let audioTag = liTags[j].querySelector(".audio-duration");
 
         if(liTags[j].classList.contains("playing")){
             liTags[j].classList.remove("playing");
