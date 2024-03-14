@@ -5,17 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="style.css" class="re">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
-    <link rel="icon" href="images/favicon-32x32.png" type="image/x-icon">
-    <title>Chandan's Spotify</title>
+    <link rel="icon" href="/MusicPlayer/Music.png">
+    <title>Music Player</title>
 </head>
 <body>
+    <header>
+        <div class="navbar">
+            <div class="logo"><a href="/index.html">Chandan Singh Music Player</a></div>
+            <ul class="links">
+                <li><a href="/VideoPlayer/index.html">Video Songs</a></li>
+                <li><a href="/Movies/index.html">Movies</a></li>
+            </ul>
+            
+        </div>
+    </header>
     <div class="center">
+    
         <div class="container">
+            
             <div class="main-container">
                 <div class="img-area">
                     <img src="" alt="">
@@ -55,6 +62,7 @@
                     <i class="material-icons">queue_music</i>
                     <span>Music List</span>
                 </div>
+                <input type="text" id="searchInput" placeholder="Search any song you want ❤️❤️...............">
                 <i id="close" class="material-icons">close</i>
             </div>
             <ul>
