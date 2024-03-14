@@ -4,7 +4,7 @@ const upperContainer = document.querySelector('.upper-container');
 const lowerContainer = document.querySelector('.lower-container');
 const musicName = upperContainer.querySelector('.song-details .name');
 const musicList = center.querySelector(".music-list");
-const liTags = ulTag.querySelectorAll("li");
+const searchInput = document.getElementById("searchInput");
       musicArtist = upperContainer.querySelector('.song-details .artist'),
       musicImg = mainContainer.querySelector('.img-area img'),
       mainAudio = lowerContainer.querySelector('#main-audio'),
@@ -15,16 +15,10 @@ const liTags = ulTag.querySelectorAll("li");
       progressBar = lowerContainer.querySelector('.progress-bar'),
       showMoreBtn = center.querySelector("#more-music"),
       hideMusicBtn = center.querySelector("#close");
-  
 
 
 
-
-
-
-
-
-  let musicIndex = 1;
+  let musicIndex = 29;
 
 window.addEventListener("load", () => {
     loadMusic(musicIndex);
@@ -223,26 +217,31 @@ for(let i = 0; i < allMusic.length; i++) {
     });
 
 }
-function playingNow() {
-    for (let j = 0; j < liTags.length; j++) {
-        let audioTag = liTags[j].querySelector(".audio-duration");
 
-        if(liTags[j].classList.contains("playing")){
-            liTags[j].classList.remove("playing");
+
+const allLiTags = ulTag.querySelectorAll("li");
+function playingNow(){
+    for (let j = 0; j < allLiTags.length; j++) {
+        let audioTag = allLiTags[j].querySelector(".audio-duration")
+
+        if(allLiTags[j].classList.contains("playing")){
+            allLiTags[j].classList.remove("playing");
 
             let adDuration = audioTag.getAttribute("t-duration");
             audioTag.innerText = adDuration;
         }
 
-        if(liTags[j].getAttribute("li-index") == musicIndex){
-            liTags[j].classList.add("playing");
+
+
+        if(allLiTags[j].getAttribute("li-index") == musicIndex){
+            allLiTags[j].classList.add("playing");
             audioTag.innerText = "Playing";
         }
-
-        liTags[j].setAttribute("onclick", "clicked(this)")
+    
+    
+        allLiTags[j].setAttribute("onclick", "clicked(this)")
     }
 }
-
 
 
 
@@ -253,3 +252,42 @@ function clicked(elements){
     playMusic();
     playingNow();
 }
+
+
+document.body.addEventListener("keydown", function (event) {
+    switch (event.keyCode) {
+        case 39: // Right arrow key
+            nextMusic();
+            break;
+        case 37: // Left arrow key
+            prevMusic();
+            break;
+
+        default:
+            break;
+    }
+});
+
+function togglePlayPause() {
+    const isMusicPaused = lowerContainer.classList.contains("paused");
+    isMusicPaused ? playMusic() : pauseMusic();
+    playingNow();
+}
+
+
+searchInput.addEventListener("input", function () {
+    const searchTerm = searchInput.value.toLowerCase();
+    filterMusicList(searchTerm);
+});
+
+function filterMusicList(searchTerm) {
+    const allLiTags = ulTag.querySelectorAll("li");
+    allLiTags.forEach((liTag) => {
+        const musicName = liTag.querySelector("span").innerText.toLowerCase();
+        const musicArtist = liTag.querySelector("p").innerText.toLowerCase();
+        const containsTerm = musicName.includes(searchTerm) || musicArtist.includes(searchTerm);
+        
+        liTag.style.display = containsTerm ? "block" : "none";
+    });
+}
+
