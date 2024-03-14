@@ -80,43 +80,199 @@ let allMusic = [
     {
       name: "Indian Riddim",
       artist: "Beats By Saheed",
-      img: "img-14",
+      img: "img-0",
       src: "music-14"
     },
     {
       name: "Rangeen",
       artist: "Beats By Saheed",
-      img: "img-14",
+      img: "img-0",
       src: "music-15"
     },
     {
       name: "Noor",
       artist: "Beats By Saheed",
-      img: "img-14",
+      img: "img-0",
       src: "music-16"
     },
     {
       name: "Karishma",
       artist: "Beats By Saheed",
-      img: "img-14",
+      img: "img-0",
       src: "music-17"
     },
     {
       name: "Pachtaoge",
       artist: "Arjit Singh",
-      img: "img-14",
+      img: "img-0",
       src: "music-18"
     },
     {
       name: "Indian Flute",
       artist: "Beats By Saheed",
-      img: "img-14",
+      img: "img-0",
       src: "music-19"
     },
     {
       name: "Faasle",
       artist: "Aditya Rikhari",
-      img: "img-14",
+      img: "img-20",
       src: "music-20"
+    },
+    {
+      name: "Red Light",
+      artist: "Third Hour",
+      img: "img-21",
+      src: "music-21"
+    },
+    {
+      name: "Akhiyaan Gulaab",
+      artist: "Mitraz",
+      img: "img-22",
+      src: "music-22"
+    },
+    {
+      name: "Taroon Ke Neeche",
+      artist: "Third Hour",
+      img: "img-23",
+      src: "music-23"
+    },
+    {
+      name: "Lowkey",
+      artist: "Third Hour",
+      img: "img-24",
+      src: "music-24"
+    },
+    {
+      name: "Sawaal",
+      artist: "Third Hour",
+      img: "img-25",
+      src: "music-25"
+    },
+    {
+      name: "Miracle",
+      artist: "Third Hour",
+      img: "img-26",
+      src: "music-26"
+    },
+    {
+      name: "Deedaar",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-27"
+    },
+    {
+      name: "Pardesiyaan",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-28"
+    },
+    {
+      name: "Raajhna(Feat.JLok)",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-29"
+    },  
+    {
+      name: "Fitoor",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-30"
+    },
+    {
+      name: "Galiyaan",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-31"
+    },
+    {
+      name: "Peher",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-32"
+    },
+    {
+      name: "L.A. Parties",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-33"
+    },
+    {
+      name: "Fallin",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-34"
+    },
+    {
+      name: "Mislead",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-35"
+    },
+    {
+      name: "Downtown",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-36"
+    },
+    {
+      name: "Gal Teri",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-37"
+    },
+    {
+      name: "Nightout",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-38"
+    },
+    {
+      name: "Tujhpe Nazar",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-39"
+    },
+    {
+      name: "Kudi kehndi",
+      artist: "Third Hour",
+      img: "img-0",
+      src: "music-40"
+    },
+    {
+      name: "Heeriye",
+      artist: "Arjit Singh",
+      img: "img-41",
+      src: "music-41"
+    },
+    {
+      name: "Ratiyaa",
+      artist: "Arooh",
+      img: "img-42",
+      src: "music-42"
+    },
+    {
+      name: "Ve Haaniyaa",
+      artist: "Danny",
+      img: "img-43",
+      src: "music-43"
+    },
+    {
+      name: "Thuli Thuli",
+      artist: "Haricharan & Tanvi",
+      img: "img-44",
+      src: "music-44"
+    },
+    {
+      name: "Baarish",
+      artist: "Mohammed Irfan & Gajendra Verma",
+      img: "img-45",
+      src: "music-45"
+    },
+    {
+      name: "Akhan Nu",
+      artist: "Sakshi Ratti",
+      img: "img-46",
+      src: "music-46"
     },
   ];
