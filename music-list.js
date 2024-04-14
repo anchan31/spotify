@@ -275,4 +275,10 @@ let allMusic = [
       img: "img-46",
       src: "music-46"
     },
+     {
+      name: "Ishq -Lost Found",
+      artist: "Faheem Abdullah & Rauhan Malik",
+      img: "img-47",
+      src: "music-47"
+    },
   ];
