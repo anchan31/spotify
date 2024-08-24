@@ -281,4 +281,10 @@ let allMusic = [
       img: "img-47",
       src: "music-47"
     },
+    {
+      name: "Jhol | Coke Studio",
+      artist: "Maanu x Annural Khalid",
+      img: "img-48",
+      src: "music-48"
+    },
   ];
