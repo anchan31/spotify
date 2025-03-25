@@ -92,16 +92,18 @@ body {
     align-items: center;
 }
 
-/* MAIN CONTAINER - Fills the screen */
+/* MAIN CONTAINER - Full Height, but max width 1200px */
 .container {
     display: flex;
     width: 100%;
+    max-width: 1200px; /* The maximum width you desire */
     height: 100%;
     border-radius: 20px;
     overflow: hidden;
     position: relative;
     box-shadow: 0 0 10px var(--blackshadow);
     padding-top: 10px;
+    margin: 0 auto; /* Center horizontally if the screen is wider than 1200px */
 }
 
 /* MAIN & SIDE CONTAINERS */
