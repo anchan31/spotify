@@ -75,22 +75,28 @@ body {
 
 /* Container & Centering */
 .center {
+    display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow-y: auto;
     max-height: 5000px;
+    height: 100vh; /* Ensures .center fills the viewport */
 }
 
+/* Modified .container to auto-adjust within .center */
 .container {
     display: flex;
-    height: 100vh;
-    width: 100vw;
+    flex-direction: row;
+    width: 90%;
+    max-width: 800px;
+    height: auto;
     border-radius: 20px;
     overflow: hidden;
     position: relative;
     box-shadow: 0 0 10px var(--blackshadow);
     padding-top: 10px;
+    margin: auto;
 }
 
 /* Main and Side Containers */
@@ -442,10 +448,11 @@ ul li.playing {
     }
   
     .container {
-      width: 800px;
+      width: 90%;
+      max-width: 800px;
       height: auto;
       max-height: 90vh;
-      margin: 0 auto;
+      margin: auto;
       border-radius: 20px;
       box-shadow: 0 0 10px var(--blackshadow);
       padding-top: 10px;
