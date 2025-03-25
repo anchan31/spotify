@@ -12,11 +12,11 @@
     --list: rgba(0, 0, 0, 0.5);
 }
 
-li{
+li {
     list-style: none;
 }
 
-a{
+a {
     text-decoration: none;
     background: linear-gradient(30deg, var(--bluegray) 0%, var(--blue) 100%);
     -webkit-background-clip: text;
@@ -27,10 +27,10 @@ a{
 a:hover {
     background: linear-gradient(30deg, var(--bluegray1) 0%, var(--blue1) 100%);
     -webkit-background-clip: text;
-    color: transparent
+    color: transparent;
 }
 
-header{
+header {
     position: relative;
     padding: 0 2rem;
 }
@@ -45,7 +45,7 @@ header{
     justify-content: space-between;
 }
 
-.navbar .logo a{
+.navbar .logo a {
     font-size: 1.5rem;
     font-weight: bold;
 }
@@ -55,46 +55,31 @@ header{
     gap: 2.5rem;
 }
 
-
-
-
-
-
 body {
     margin: 0;
     padding: 0;
     font-family: 'Bahnschrift', sans-serif;
-    overflow: hidden; 
+    overflow: hidden;
     background-image: url(''); /* Add your background image URL here */
-    background-size: cover; /* Ensures the background image covers the entire screen */
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    backdrop-filter: blur(10px); /* Add a blur effect to the background */
+    backdrop-filter: blur(10px);
     height: 100vh;
 }
 
-/* Other existing styles */
-
-/* Add custom scrollbar styles */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 0px; /* Width of the scrollbar */
+  width: 0px;
 }
 
-
-/* Set overflow behavior for specific containers */
-.center {
-  overflow-y: auto; /* Enable vertical scrollbar if content overflows */
-  max-height: 5000px; /* Limit the height of the container to the viewport height minus header height */
-}
-
-
-
-
+/* Container & Centering */
 .center {
     align-items: center;
     justify-content: center;
     position: relative;
     overflow-y: auto;
+    max-height: 5000px;
 }
 
 .container {
@@ -108,7 +93,7 @@ body {
     padding-top: 10px;
 }
 
-
+/* Main and Side Containers */
 .main-container {
     flex: 1;
     overflow: hidden;
@@ -118,7 +103,6 @@ body {
     position: relative;
     flex-direction: column;
 }
-
 
 .side-container {
     flex: 1;
@@ -136,22 +120,23 @@ body {
     z-index: 1;
 }
 
+/* Image Area */
 .img-area  {
     height: 450px;
     width: 450px;
     margin: 25px;
     overflow: hidden;
-    border-radius: 10px;  
+    border-radius: 10px;
     box-shadow: 0px 6px 10px var(--blackshadow);
 }
 
-.img-area img{
+.img-area img {
     height: 100%;
     width: 100%;
     object-fit: cover;
 }
 
-
+/* Song Details */
 .song-details {
     padding: 70px;
     display: flex;
@@ -179,22 +164,21 @@ body {
     margin: 10px 0;
 }
 
-
+/* Progress Area & Timer */
 .progress-area {
     height: 6px;
     width: 100%;
     background: #f0f0f0;
     border-radius: 50px;
     cursor: pointer;
-    position: relative; /* Add position:relative to .progress-area */
+    position: relative;
 }
 
 .progress-area .progress-bar {
     height: inherit;
-   /* width: 50%;*/
     position: absolute;
     border-radius: inherit;
-    background: linear-gradient(30deg, var(--bluegray) 0%, var(--blue) 100%);;
+    background: linear-gradient(30deg, var(--bluegray) 0%, var(--blue) 100%);
 }
 
 .progress-bar::before {
@@ -216,11 +200,13 @@ body {
     opacity: 1;
 }
 
-.progress-area, .controls{
+/* Controls & Timer */
+.progress-area, .controls {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
+
 .timer, .music-list .header,
 .music-list li {
     display: flex;
@@ -245,20 +231,20 @@ body {
     background: linear-gradient(30deg, var(--bluegray) 0%, var(--blue) 100%);
     background-clip: text;
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent ;
+    -webkit-text-fill-color: transparent;
     cursor: pointer;
 }
 
 .controls i:nth-child(2),
-.controls i:nth-child(4){
+.controls i:nth-child(4) {
     font-size: 30px;
 }
 
-.controls #prev{
+.controls #prev {
     margin-right: -13px;
 }
 
-.controls #next{
+.controls #next {
     margin-left: -13px;
 }
 
@@ -282,8 +268,7 @@ body {
     background: linear-gradient(30deg, var(--bluegray) 0%, var(--blue) 100%);
 }
 
-
-.play-pause i{
+.play-pause i {
     height: 43px;
     width: 43px;
     line-height: 43px;
@@ -293,8 +278,10 @@ body {
     background: inherit;
     position: relative;
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent ;
+    -webkit-text-fill-color: transparent;
 }
+
+/* Music List */
 .music-list {
     position: absolute;
     background: linear-gradient(30deg, var(--bluegray) 0%, var(--blue) 100%);
@@ -309,47 +296,47 @@ body {
     box-shadow: 0px -5px 10px rgba(0, 0, 0, 0.1);
     transition: all 0.15s ease-out;
     color: var(--lightblack);
-  }
-  
-  .music-list.show {
+}
+
+.music-list.show {
     bottom: 0;
     opacity: 1;
     pointer-events: auto;
-  }
-  
-  .header .row {
+}
+
+.header .row {
     display: flex;
     align-items: center;
     font-size: 19px;
     color: var(--lightblack);
-  }
-  
-  .header .row i {
+}
+
+.header .row i {
     cursor: default;
-  }
-  
-  .header .row span {
+}
+
+.header .row span {
     margin-left: 5px;
-  }
-  
-  .header #close {
+}
+
+.header #close {
     font-size: 22px;
     color: var(--lightblack);
-  }
-  
-  .music-list ul {
+}
+
+.music-list ul {
     margin: 10px 0;
     max-height: 350px;
     overflow: auto;
     padding-right: 30px;
     padding-bottom: 45px;
-  }
-  
-  .music-list ul::-webkit-scrollbar {
+}
+
+.music-list ul::-webkit-scrollbar {
     width: 0px;
-  }
-  
-  .music-list ul li {
+}
+
+.music-list ul li {
     list-style: none;
     display: flex;
     cursor: pointer;
@@ -357,31 +344,30 @@ body {
     margin-bottom: 5px;
     color: var(--lightblack);
     border-bottom: 1px solid #E5E5E5;
-  }
-  
-  .music-list ul li:last-child {
+}
+
+.music-list ul li:last-child {
     border-bottom: 0px;
-  }
-  
-  .music-list ul li .row span {
+}
+
+.music-list ul li .row span {
     font-size: 20px;
-  }
-  
-  .music-list ul li .row p {
+}
+
+.music-list ul li .row p {
     opacity: 0.9;
-  }
-  
-  ul li .audio-duration {
+}
+
+ul li .audio-duration {
     font-size: 16px;
-  }
-  
-  ul li.playing {
+}
+
+ul li.playing {
     pointer-events: none;
     color: var(--white);
-  }
-  
+}
 
-  .music-list .header input[type="text"] {
+.music-list .header input[type="text"] {
     padding: 8px;
     font-size: 16px;
     border: none;
@@ -401,8 +387,7 @@ body {
     box-shadow: 0px 0px 5px var(--blue);
 }
 
-/* Existing styles */
-
+/* Responsive Design for Mobile Devices */
 @media (max-width: 576px) {
     .container {
       flex-direction: column;
@@ -444,5 +429,50 @@ body {
     .music-list .header input[type="text"] {
       width: 100%;
     }
-  }
+}
+
+/* Responsive Design for Laptops & PCs */
+@media (min-width: 1024px) {
+    .center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
   
+    .container {
+      width: 800px;
+      height: auto;
+      max-height: 90vh;
+      margin: 0 auto;
+      border-radius: 20px;
+      box-shadow: 0 0 10px var(--blackshadow);
+      padding-top: 10px;
+    }
+  
+    .main-container,
+    .side-container {
+      height: auto;
+      padding: 10px;
+    }
+  
+    .img-area {
+      height: auto;
+      width: 450px;
+      margin: 25px auto;
+    }
+  
+    .song-details {
+      padding: 40px;
+      text-align: center;
+    }
+  
+    .song-details .name {
+      font-size: 35px;
+    }
+  
+    .song-details .artist {
+      font-size: 25px;
+    }
+}
