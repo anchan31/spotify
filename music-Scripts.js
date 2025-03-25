@@ -18,8 +18,7 @@ const searchInput = document.getElementById("searchInput");
 
 
 
-  let musicIndex = 29;
-
+  let musicIndex = 1;
 window.addEventListener("load", () => {
     loadMusic(musicIndex);
     playingNow();
@@ -192,14 +191,15 @@ const ulTag = musicList.querySelector("ul");
 for(let i = 0; i < allMusic.length; i++) {
     let liTag = `<li li-index="${i + 1}">
                     <div class="row">
-                    <span>${allMusic[i].name}</span>
-                    <p>${allMusic[i].artist}</p>
+                      <span>${allMusic[i].name}</span>
+                      <p>${allMusic[i].artist}</p>
                     </div>
-                    <audio class="${allMusic[i].src}" src="songs/${allMusic[i].src}.mp3"></audio>
+                    <!-- Audio element will be created on demand -->
                     <span id="${allMusic[i].src}" class="audio-duration"></span>
-                    </li>`
-    
+                 </li>`;
     ulTag.insertAdjacentHTML("beforeend", liTag);
+}
+
     let liAudioDuration = ulTag.querySelector(`#${allMusic[i].src}`);
     let liAudioTag = ulTag.querySelector(`.${allMusic[i].src}`);
 
@@ -245,13 +245,43 @@ function playingNow(){
 
 
 
-function clicked(elements){
+function clicked(elements) {
     let getLiIndex = elements.getAttribute("li-index");
     musicIndex = getLiIndex;
+
+    // Check if the audio element is already present in the clicked list item.
+    let existingAudio = elements.querySelector("audio");
+    
+    if (!existingAudio) {
+        // Create a new audio element for this song
+        let songSrc = allMusic[musicIndex - 1].src;
+        let audioEl = document.createElement("audio");
+        audioEl.setAttribute("preload", "metadata");
+        audioEl.src = `songs/${songSrc}.mp3`;
+
+        // Optionally, add a listener to load and display the duration
+        audioEl.addEventListener("loadeddata", () => {
+            let durationEl = elements.querySelector(".audio-duration");
+            let audioDuration = audioEl.duration;
+            let totalMin = Math.floor(audioDuration / 60);
+            let totalSec = Math.floor(audioDuration % 60);
+            if (totalSec < 10) {
+                totalSec = `0${totalSec}`;
+            }
+            durationEl.innerText = `${totalMin}:${totalSec}`;
+            durationEl.setAttribute("t-duration", `${totalMin}:${totalSec}`);
+        });
+
+        // Append the newly created audio element to the clicked list item
+        elements.appendChild(audioEl);
+    }
+    
+    // Now load, play, and update the UI as before
     loadMusic(musicIndex);
     playMusic();
     playingNow();
 }
+
 
 
 document.body.addEventListener("keydown", function (event) {
