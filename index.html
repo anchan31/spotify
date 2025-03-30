@@ -4,85 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="style.css" class="re">
+    <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/Favicon-logo.png">
     <title>Music Player</title>
 </head>
 <body>
-    <header>
-        <div class="navbar">
-            <div class="logo"><a href="#">Chandan Singh Music Player</a></div>
-            <ul class="links">
-                <li><a href="#">Video Songs</a></li>
-                <li><a href="#">Movies</a></li>
-            </ul>
-            
-        </div>
-    </header>
+    <!-- Login Form -->
     <div id="auth-container">
-    <input type="email" id="email" placeholder="Enter your email">
-    <input type="password" id="password" placeholder="Enter your password">
-    <button id="login">Login</button>
-    <button id="signup">Sign Up</button>
-    <button id="logout" style="display:none;">Logout</button>
+        <h2>Login to Continue</h2>
+        <input type="email" id="email" placeholder="Enter your email">
+        <input type="password" id="password" placeholder="Enter your password">
+        <button id="login">Login</button>
+        <button id="signup">Sign Up</button>
     </div>
 
-    <div class="center">
-    
-        <div class="container">
-            
-            <div class="main-container">
-                <div class="img-area">
-                    <img src="" alt="">
-                </div>
+    <!-- Music Player (Hidden Initially) -->
+    <div id="music-player" style="display: none;">
+        <header>
+            <div class="navbar">
+                <div class="logo"><a href="#">Chandan Singh Music Player</a></div>
+                <ul class="links">
+                    <li><a href="#">Video Songs</a></li>
+                    <li><a href="#">Movies</a></li>
+                </ul>
+                <button id="logout">Logout</button>
             </div>
-            <div class="side-container">
-                <div class="upper-container">
-                    <div class="song-details">
-                        <p class="name"></p>
-                        <p class="artist"></p>
+        </header>
+
+        <div class="center">
+            <div class="container">
+                <div class="main-container">
+                    <div class="img-area">
+                        <img src="" alt="">
                     </div>
                 </div>
-                <div class="lower-container">
-                    <div class="progress-area">
-                        <div class="progress-bar"></div>
-                    </div>                
-                    <div class="timer">
-                        <span class="current"></span>
-                        <span class="duration"></span>
-                    </div>
-                    <audio id="main-audio" src=""></audio>
-                    <div class="controls">
-                        <i id="repeat-plist" class="material-icons">repeat</i>
-                        <i id="prev" class="material-icons">skip_previous</i>
-                        <div class="play-pause">
-                            <i class="material-icons">play_arrow</i>
+                <div class="side-container">
+                    <div class="upper-container">
+                        <div class="song-details">
+                            <p class="name"></p>
+                            <p class="artist"></p>
                         </div>
-                        <i id="next" class="material-icons">skip_next</i>
-                        <i id="more-music" class="material-icons">queue_music</i>
+                    </div>
+                    <div class="lower-container">
+                        <div class="progress-area">
+                            <div class="progress-bar"></div>
+                        </div>                
+                        <div class="timer">
+                            <span class="current"></span>
+                            <span class="duration"></span>
+                        </div>
+                        <audio id="main-audio" src=""></audio>
+                        <div class="controls">
+                            <i id="repeat-plist" class="material-icons">repeat</i>
+                            <i id="prev" class="material-icons">skip_previous</i>
+                            <div class="play-pause">
+                                <i class="material-icons">play_arrow</i>
+                            </div>
+                            <i id="next" class="material-icons">skip_next</i>
+                            <i id="more-music" class="material-icons">queue_music</i>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="music-list">
-            <div class="header">
-                <div class="row">
-                    <i class="material-icons">queue_music</i>
-                    <span>Music List</span>
+            <div class="music-list">
+                <div class="header">
+                    <div class="row">
+                        <i class="material-icons">queue_music</i>
+                        <span>Music List</span>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Search any song you want ❤️❤️...............">
+                    <i id="close" class="material-icons">close</i>
                 </div>
-                <input type="text" id="searchInput" placeholder="Search any song you want ❤️❤️...............">
-                <i id="close" class="material-icons">close</i>
+                <ul></ul>
             </div>
-            <ul>
-
-            </ul>
         </div>
     </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
-    <script src="music-list.js"></script>
-    <script src="music-Scripts.js"></script>
     <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
+    <script src="music-list.js"></script>
+    <script src="music-Scripts.js"></script>
 </body>
 </html>
