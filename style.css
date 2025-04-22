@@ -443,3 +443,39 @@ ul li.playing {
     }
 }
 
+.artist-section {
+  padding: 2rem;
+  color: #fff;
+}
+
+.artist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.5rem;
+}
+
+.artist-card {
+  background: #121212;
+  padding: 1rem;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 0 10px #00f7ff33;
+  transition: transform 0.3s ease;
+}
+
+.artist-card:hover {
+  transform: scale(1.05);
+}
+
+.artist-card img {
+  width: 100%;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.artist-card h3 {
+  font-size: 1.1rem;
+  margin: 0;
+}
