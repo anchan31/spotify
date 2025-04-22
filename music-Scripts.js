@@ -278,3 +278,27 @@ function filterMusicList(searchTerm) {
         liTag.style.display = containsTerm ? "block" : "none";
     });
 }
+
+// Group songs by artist
+const groupedByArtist = {};
+
+allMusic.forEach(song => {
+  if (!groupedByArtist[song.artist]) {
+    groupedByArtist[song.artist] = [];
+  }
+  groupedByArtist[song.artist].push(song);
+});
+
+// Render artist cards
+const artistGrid = document.getElementById("artistGrid");
+
+Object.keys(groupedByArtist).forEach(artist => {
+  const imgSrc = `images/${groupedByArtist[artist][0].img}.jpg`;
+
+  artistGrid.innerHTML += `
+    <div class="artist-card">
+      <img src="${imgSrc}" alt="${artist}" onerror="this.src='images/default.jpg'"/>
+      <h3>${artist}</h3>
+    </div>
+  `;
+});
