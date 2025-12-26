@@ -1,0 +1,98 @@
+/**
+ * theme-manager.js - Handles application color themes and custom colors
+ */
+
+class ThemeManager {
+    constructor() {
+        this.themes = {
+            pink: { primary: '#ff74a4', secondary: '#9f6ea3', accent: '#ff74a4' },
+            white: { primary: '#666666', secondary: '#888888', accent: '#666666' },
+            blue: { primary: '#4a90e2', secondary: '#357abd', accent: '#4a90e2' },
+            green: { primary: '#4caf50', secondary: '#388e3c', accent: '#4caf50' },
+            purple: { primary: '#9c27b0', secondary: '#7b1fa2', accent: '#9c27b0' },
+            orange: { primary: '#ff9800', secondary: '#f57c00', accent: '#ff9800' },
+            teal: { primary: '#009688', secondary: '#00796b', accent: '#009688' },
+            red: { primary: '#f44336', secondary: '#d32f2f', accent: '#f44336' },
+            yellow: { primary: '#ffc107', secondary: '#ffa000', accent: '#ffc107' },
+            indigo: { primary: '#3f51b5', secondary: '#303f9f', accent: '#3f51b5' },
+            cyan: { primary: '#00bcd4', secondary: '#0097a7', accent: '#00bcd4' },
+            custom: { primary: '#ff74a4', secondary: '#9f6ea3', accent: '#ff74a4' }
+        };
+        this.currentTheme = 'pink';
+    }
+
+    applyTheme(themeName, customColor = null) {
+        if (themeName === 'custom' && customColor) {
+            this.themes.custom.primary = customColor;
+            this.themes.custom.secondary = this.adjustColor(customColor, -20);
+            this.themes.custom.accent = customColor;
+        }
+
+        const theme = this.themes[themeName];
+        if (theme) {
+            // Update CSS custom properties
+            document.documentElement.style.setProperty('--primary', theme.primary);
+            document.documentElement.style.setProperty('--secondary', theme.secondary);
+            document.documentElement.style.setProperty('--highlight', theme.primary);
+            document.documentElement.style.setProperty('--accent', theme.accent);
+
+            // Update body background with subtle gradient
+            const lightAccent = this.hexToRgba(theme.accent, 0.1);
+            const lighterAccent = this.hexToRgba(theme.accent, 0.05);
+            document.body.style.background = `linear-gradient(135deg, ${lighterAccent} 0%, #fff 50%, ${lightAccent} 100%)`;
+
+            // Update glass and opacity backgrounds
+            document.documentElement.style.setProperty('--glass-accent', this.hexToRgba(theme.accent, 0.08));
+            document.documentElement.style.setProperty('--glass-accent-hover', this.hexToRgba(theme.accent, 0.12));
+            document.documentElement.style.setProperty('--glass-accent-active', this.hexToRgba(theme.accent, 0.18));
+
+            // Opacity variables for shadows and accents
+            document.documentElement.style.setProperty('--accent-a40', this.hexToRgba(theme.accent, 0.4));
+            document.documentElement.style.setProperty('--accent-a30', this.hexToRgba(theme.accent, 0.3));
+            document.documentElement.style.setProperty('--accent-a05', this.hexToRgba(theme.accent, 0.05));
+
+            this.currentTheme = themeName;
+            this.saveTheme(themeName, customColor);
+        }
+    }
+
+    hexToRgba(hex, alpha) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    adjustColor(color, percent) {
+        // Convert hex to RGB, adjust brightness, convert back
+        const num = parseInt(color.replace('#', ''), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = Math.max(0, Math.min(255, (num >> 16) + amt));
+        const G = Math.max(0, Math.min(255, (num >> 8 & 0x00FF) + amt));
+        const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
+        return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+    }
+
+    saveTheme(themeName, customColor) {
+        const themeData = { name: themeName };
+        if (customColor) themeData.customColor = customColor;
+        localStorage.setItem('selectedTheme', JSON.stringify(themeData));
+    }
+
+    loadTheme() {
+        const saved = localStorage.getItem('selectedTheme');
+        if (saved) {
+            try {
+                const themeData = JSON.parse(saved);
+                this.applyTheme(themeData.name, themeData.customColor);
+                return themeData;
+            } catch (e) {
+                console.error('Failed to load theme:', e);
+            }
+        }
+        return null;
+    }
+}
+
+// Global instance (initialized in music-Scripts.js)
+let themeManager = null;

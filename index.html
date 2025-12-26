@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,68 +8,357 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/Favicon-logo.png">
     <title>Music Player</title>
-</head>
-<body>
-    <div id="music-player">
-        <header>
-            <div class="navbar">
-                <div class="logo"><a href="#">Chandan Singh Music Player</a></div>
-                <ul class="links">
-                    <li><a href="#">Video Songs</a></li>
-                    <li><a href="#">Movies</a></li>
-                </ul>
-            </div>
-        </header>
+    <style>
+        /* Inline add-to-queue button style */
+        .add-to-queue {
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+        }
 
-        <div class="center">
-            <div class="container">
-                <div class="main-container">
-                    <div class="img-area">
-                        <img src="" alt="">
+        .music-list-container li:hover .add-to-queue,
+        .search-results li:hover .add-to-queue {
+            opacity: 1;
+        }
+
+        .add-to-queue:hover {
+            background: rgba(255, 116, 164, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="material-icons">music_note</i>
+                <span>Music Player</span>
+            </div>
+            <ul>
+                <li class="active" data-view="home">
+                    <i class="material-icons">home</i>
+                    <span>Home</span>
+                </li>
+                <li data-view="search">
+                    <i class="material-icons">search</i>
+                    <span>Search</span>
+                </li>
+                <li data-view="artists">
+                    <i class="material-icons">library_music</i>
+                    <span>Artists</span>
+                </li>
+                <li data-view="albums">
+                    <i class="material-icons">album</i>
+                    <span>Albums</span>
+                </li>
+                <li data-view="settings">
+                    <i class="material-icons">settings</i>
+                    <span>Settings</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home View -->
+            <section id="home-view" class="view active">
+                <div class="header-greeting">
+                    <h2 id="greeting-text">Good Evening</h2>
+                </div>
+
+                <!-- Featured Albums -->
+                <div class="section-title">
+                    <h3>Featured Albums</h3>
+                </div>
+                <div class="featured-container">
+                    <div class="featured-albums" id="featured-albums">
+                        <!-- Featured albums will be injected here -->
                     </div>
                 </div>
-                <div class="side-container">
-                    <div class="upper-container">
-                        <div class="song-details">
-                            <p class="name"></p>
-                            <p class="artist"></p>
+
+                <!-- Featured Artists -->
+                <div class="section-title">
+                    <h3>Featured Artists</h3>
+                </div>
+                <div class="featured-container">
+                    <div class="featured-artists" id="featured-artists">
+                        <!-- Featured artists will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Trending Songs -->
+                <div class="section-title">
+                    <h3>Trending Now</h3>
+                </div>
+                <div class="music-list-container">
+                    <!-- Music items will be injected here -->
+                    <ul id="music-list-ul"></ul>
+                </div>
+            </section>
+
+            <!-- Search View -->
+            <section id="search-view" class="view">
+                <div class="search-header">
+                    <i class="material-icons">search</i>
+                    <input type="text" id="main-search" placeholder="What do you want to listen to?">
+                </div>
+                <div class="search-results">
+                    <ul id="search-results-ul"></ul>
+                </div>
+            </section>
+
+            <!-- Artists View -->
+            <section id="artists-view" class="view">
+                <h2>Your Artists</h2>
+                <div class="artist-grid" id="artist-grid">
+                    <!-- Artists injected here -->
+                </div>
+            </section>
+
+            <!-- Artist Details View (Hidden by default) -->
+            <section id="artist-details-view" class="view">
+                <div class="artist-header">
+                    <i class="material-icons back-btn" id="artist-back">arrow_back</i>
+                    <div class="artist-info-large">
+                        <img src="" alt="" id="ad-img">
+                        <div class="info-text">
+                            <h2 id="ad-name">Artist Name</h2>
+                            <button id="ad-play-all">Play All</button>
                         </div>
                     </div>
-                    <div class="lower-container">
-                        <div class="progress-area">
-                            <div class="progress-bar"></div>
-                        </div>                
-                        <div class="timer">
-                            <span class="current"></span>
-                            <span class="duration"></span>
+                </div>
+                <div class="artist-songs-list">
+                    <ul id="artist-songs-ul"></ul>
+                </div>
+                <div class="artist-queue-actions">
+                    <button id="ad-add-all-queue" class="small-btn">Add All to Queue</button>
+                    <button id="ad-clear-artist-queue" class="small-btn">Remove Artist from Queue</button>
+                </div>
+            </section>
+
+            <!-- Albums View -->
+            <section id="albums-view" class="view">
+                <h2>Your Albums</h2>
+                <div class="album-grid" id="album-grid">
+                    <!-- Albums injected here -->
+                </div>
+            </section>
+
+            <!-- Album Details View (Hidden by default) -->
+            <section id="album-details-view" class="view">
+                <div class="album-header">
+                    <i class="material-icons back-btn" id="album-back">arrow_back</i>
+                    <div class="album-info-large">
+                        <img src="" alt="" id="album-detail-img">
+                        <div class="info-text">
+                            <h2 id="album-detail-name">Album Name</h2>
+                            <p id="album-detail-artist">Artist Name</p>
+                            <button id="album-play-all">Play All</button>
                         </div>
-                        <audio id="main-audio" src=""></audio>
-                        <div class="controls">
-                            <i id="repeat-plist" class="material-icons">repeat</i>
-                            <i id="prev" class="material-icons">skip_previous</i>
-                            <div class="play-pause">
-                                <i class="material-icons">play_arrow</i>
+                    </div>
+                </div>
+                <div class="album-songs-list">
+                    <ul id="album-songs-ul"></ul>
+                </div>
+                <div class="album-queue-actions">
+                    <button id="album-add-all-queue" class="small-btn">Add All to Queue</button>
+                    <button id="album-clear-queue" class="small-btn">Remove Album from Queue</button>
+                </div>
+            </section>
+
+            <!-- Settings View -->
+            <section id="settings-view" class="view">
+                <h2>Settings</h2>
+                <div class="settings-container">
+                    <!-- Tabs -->
+                    <div class="settings-tabs">
+                        <button class="settings-tab active" data-settings-tab="themes">Themes</button>
+                    </div>
+
+                    <!-- Themes Panel -->
+                    <div class="settings-panel active" id="themes-panel">
+                        <h3>Color Themes</h3>
+                        <div class="theme-options">
+                            <div class="theme-option active" data-theme="pink">
+                                <div class="theme-preview pink-theme"></div>
+                                <span>Pink</span>
                             </div>
-                            <i id="next" class="material-icons">skip_next</i>
-                            <i id="more-music" class="material-icons">queue_music</i>
+                            <div class="theme-option" data-theme="white">
+                                <div class="theme-preview white-theme"></div>
+                                <span>White</span>
+                            </div>
+                            <div class="theme-option" data-theme="blue">
+                                <div class="theme-preview blue-theme"></div>
+                                <span>Blue</span>
+                            </div>
+                            <div class="theme-option" data-theme="green">
+                                <div class="theme-preview green-theme"></div>
+                                <span>Green</span>
+                            </div>
+                            <div class="theme-option" data-theme="purple">
+                                <div class="theme-preview purple-theme"></div>
+                                <span>Purple</span>
+                            </div>
+                            <div class="theme-option" data-theme="orange">
+                                <div class="theme-preview orange-theme"></div>
+                                <span>Orange</span>
+                            </div>
+                            <div class="theme-option" data-theme="teal">
+                                <div class="theme-preview teal-theme"></div>
+                                <span>Teal</span>
+                            </div>
+                            <div class="theme-option" data-theme="red">
+                                <div class="theme-preview red-theme"></div>
+                                <span>Red</span>
+                            </div>
+                            <div class="theme-option" data-theme="yellow">
+                                <div class="theme-preview yellow-theme"></div>
+                                <span>Yellow</span>
+                            </div>
+                            <div class="theme-option" data-theme="indigo">
+                                <div class="theme-preview indigo-theme"></div>
+                                <span>Indigo</span>
+                            </div>
+                            <div class="theme-option" data-theme="cyan">
+                                <div class="theme-preview cyan-theme"></div>
+                                <span>Cyan</span>
+                            </div>
+                            <div class="theme-option" data-theme="custom">
+                                <div class="theme-preview custom-theme">
+                                    <i class="material-icons">palette</i>
+                                </div>
+                                <span>Custom</span>
+                            </div>
+                        </div>
+                        <div class="custom-color-picker" style="display: none;">
+                            <label>Pick Your Color:</label>
+                            <input type="color" id="custom-theme-color" value="#ff74a4">
                         </div>
                     </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Player Bar -->
+        <div class="player-bar">
+            <div class="song-info">
+                <img src="" alt="" id="mini-img">
+                <div class="details">
+                    <span id="mini-name">Song Name</span>
+                    <span id="mini-artist">Artist</span>
                 </div>
             </div>
-            <div class="music-list">
-                <div class="header">
-                    <div class="row">
-                        <i class="material-icons">queue_music</i>
-                        <span>Music List</span>
+            <div class="player-controls">
+                <div class="control-buttons">
+                    <i id="mini-shuffle" class="material-icons">shuffle</i>
+                    <i id="mini-prev" class="material-icons">skip_previous</i>
+                    <div class="play-pause mini-play-pause">
+                        <i class="material-icons">play_arrow</i>
                     </div>
-                    <input type="text" id="searchInput" placeholder="Search any song you want ❤️❤️...............">
-                    <i id="close" class="material-icons">close</i>
+                    <i id="mini-next" class="material-icons">skip_next</i>
+                    <i id="mini-repeat" class="material-icons">repeat</i>
                 </div>
-                <ul></ul>
+                <div class="progress-container">
+                    <span class="current-time" id="mini-current">0:00</span>
+                    <div class="progress-bar-bg" id="mini-progress-area">
+                        <div class="progress-bar-fill" id="mini-progress-bar"></div>
+                    </div>
+                    <span class="total-duration" id="mini-duration">0:00</span>
+                </div>
+            </div>
+            <div class="volume-controls">
+                <i id="mini-volume-icon" class="material-icons">volume_up</i>
+                <input type="range" id="mini-volume" min="0" max="100" value="100">
+                <i id="expand-player" class="material-icons">open_in_full</i>
             </div>
         </div>
     </div>
+
+    <!-- Full Screen Overlay Player -->
+    <div class="full-screen-player">
+        <div class="fs-header">
+            <i class="material-icons" id="collapse-player">keyboard_arrow_down</i>
+            <span>Now Playing</span>
+            <i class="material-icons">more_vert</i>
+        </div>
+
+        <div class="fs-content-wrapper">
+            <div class="fs-image">
+                <img src="" alt="" id="fs-img">
+            </div>
+            <div class="fs-details">
+                <div class="text">
+                    <h2 id="fs-name">Song Name</h2>
+                    <p id="fs-artist">Artist</p>
+                </div>
+            </div>
+            <div class="fs-progress-area" id="fs-progress-area">
+                <div class="fs-progress-bar" id="fs-progress-bar">
+                    <div class="progress-fill" id="fs-progress-bar-fill"></div>
+                </div>
+                <div class="fs-timer">
+                    <span id="fs-current-time">0:00</span>
+                    <span id="fs-max-duration">0:00</span>
+                </div>
+            </div>
+            <div class="fs-controls">
+                <i id="fs-repeat" class="material-icons">repeat</i>
+                <i id="fs-prev" class="material-icons">skip_previous</i>
+                <div class="play-pause fs-play-pause">
+                    <i class="material-icons">play_arrow</i>
+                </div>
+                <i id="fs-next" class="material-icons">skip_next</i>
+                <i id="fs-lyrics-toggle" class="material-icons">lyrics</i>
+                <i id="fs-queue-toggle" class="material-icons">queue_music</i>
+                <i id="fs-visualizer-toggle" class="material-icons"
+                    title="Toggle Visualizer (double-click to change style)" role="button" tabindex="0"
+                    aria-pressed="false">graphic_eq</i>
+            </div>
+
+            <!-- Audio Visualizer Canvas -->
+            <canvas id="audio-visualizer" class="audio-visualizer"></canvas>
+        </div>
+
+        <!-- Queue Panel -->
+        <div class="queue-panel">
+            <div class="queue-header">
+                <h3>Up Next</h3>
+                <div class="queue-actions">
+                    <i id="queue-close" class="material-icons">close</i>
+                </div>
+            </div>
+            <div class="queue-content">
+                <div class="queue-list" id="queue-list">
+                    <p class="empty-queue">Queue is empty. Add songs to get started!</p>
+                </div>
+            </div>
+            <div class="queue-footer">
+                <button id="clear-queue" class="clear-queue-btn">Clear Queue</button>
+            </div>
+        </div>
+
+        <!-- Lyrics Container within FS -->
+        <div class="lyrics-overlay">
+            <div class="lyrics-header-fs">
+                <h3>Lyrics</h3>
+                <i id="lyrics-close-fs" class="material-icons">close</i>
+            </div>
+            <div class="lyrics-content-fs"></div>
+        </div>
+    </div>
+
+    <!-- Audio Element (Hidden or handled globally) -->
+    <audio id="main-audio" src="" crossorigin="anonymous"></audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.min.js"></script>
     <script src="music-list.js"></script>
+    <script src="lyrics.js"></script>
+    <script src="visualizer.js"></script>
+    <script src="theme-manager.js"></script>
     <script src="music-Scripts.js"></script>
 </body>
+
 </html>
