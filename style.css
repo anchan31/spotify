@@ -643,7 +643,7 @@ body {
 .fs-progress-bar {
     height: 6px;
     width: 100%;
-    background: #e0e0e0;
+    background: var(--highlight);
     border-radius: 3px;
     position: relative;
     cursor: pointer;

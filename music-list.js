@@ -317,4 +317,42 @@ let allMusic = [
     img: "music-placeholder",
     src: "music-49"
   },
+
+  {
+    name: "Nafrat",
+    artist: "Darshan Raval",
+    album: "I Loved You",
+    img: "img-50",
+    artistImg: "darshan-raval",
+    albumImg: "ilovedyou",
+    src: "music-50",
+  },
+  {
+    name: "Deewana",
+    artist: "Darshan Raval",
+    album: "I Loved You",
+    img: "img-51",
+    artistImg: "darshan-raval",
+    albumImg: "ilovedyou",
+    src: "music-51",
+  },
+  {
+    name: "Haara",
+    artist: "Darshan Raval",
+    album: "I Loved You",
+    img: "img-52",
+    artistImg: "darshan-raval",
+    albumImg: "ilovedyou",
+    src: "music-52",
+  },
+  {
+    name: "Jiyaa",
+    artist: "Darshan Raval",
+    album: "I Loved You",
+    img: "img-53",
+    artistImg: "darshan-raval",
+    albumImg: "ilovedyou",
+    src: "music-53",
+  },
 ];
+
