@@ -57,7 +57,14 @@ To add new songs to the player:
 
 This project is automatically deployed to **GitHub Pages**. Every push to the `main` branch triggers a new build.
 
-## 📝 License
+## � Version History
+
+- **v2.0.2** (Active) - Latest stable release.
+- **v2.0.1** - Bug fixes and stability improvements.
+- **v2.0.0** - Major redesign with glassmorphism and enhanced features.
+- **Nov 26, 2025** - Initial project structure cleanup and `index.html` setup.
+
+## �📝 License
 
 This project is for educational and personal use. 
 
