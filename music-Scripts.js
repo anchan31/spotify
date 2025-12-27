@@ -238,8 +238,11 @@ function loadArtists() {
 }
 
 function loadArtistDetails(artistName, songs) {
-    // Populate details
-    adName.innerText = artistName;
+    const adName = document.getElementById("ad-name");
+    const adImg = document.getElementById("ad-img");
+
+    if (adName) adName.innerText = artistName;
+
     // Priority: 1. artistImg override, 2. slugified name, 3. fallback to song image
     const artistSlug = artistName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const override = songs[0].artistImg;
@@ -251,7 +254,7 @@ function loadArtistDetails(artistName, songs) {
     artistPaths.push(`images/artists/${artistName}`);
     artistPaths.push(`images/${songs[0].img}`);
 
-    attemptImageFormats(adImg, artistPaths, `images/music-placeholder.jpg`);
+    if (adImg) attemptImageFormats(adImg, artistPaths, `images/music-placeholder.jpg`);
 
     // Populate list
     artistSongsUl.innerHTML = "";
@@ -578,20 +581,118 @@ miniVolumeSlider.addEventListener("input", (e) => {
 // Expand / Collapse Player
 expandPlayerBtn.addEventListener("click", () => {
     fsPlayer.classList.add("active");
+    miniPlayer.classList.add("fs-active");
+});
+
+// Mobile: Make entire bar clickable to expand
+miniPlayer.addEventListener("click", (e) => {
+    // Only expand if the click wasn't on a button or nested interactive element
+    if (window.innerWidth <= 768 && !e.target.closest('i') && !e.target.closest('.mini-play-pause')) {
+        fsPlayer.classList.add("active");
+        miniPlayer.classList.add("fs-active");
+    }
 });
 
 collapsePlayerBtn.addEventListener("click", () => {
     fsPlayer.classList.remove("active");
+    miniPlayer.classList.remove("fs-active");
 });
 
 // Search Logic
 searchInput.addEventListener("input", (e) => {
     const term = e.target.value.toLowerCase();
-    const filtered = allMusic.filter(song =>
+
+    if (!term) {
+        searchResultsUl.innerHTML = "";
+        return;
+    }
+
+    // Filter Songs
+    const filteredSongs = allMusic.filter(song =>
         song.name.toLowerCase().includes(term) ||
-        song.artist.toLowerCase().includes(term)
+        song.artist.toLowerCase().includes(term) ||
+        (song.album && song.album.toLowerCase().includes(term))
     );
-    loadMusicList(filtered, searchResultsUl);
+
+    // Filter Artists
+    const artists = [...new Set(allMusic.map(s => s.artist))];
+    const filteredArtists = artists.filter(a => a.toLowerCase().includes(term));
+
+    // Filter Albums
+    const albums = [...new Set(allMusic.map(s => s.album).filter(Boolean))];
+    const filteredAlbums = albums.filter(al => al.toLowerCase().includes(term));
+
+    // Render logic
+    searchResultsUl.innerHTML = "";
+
+    if (filteredSongs.length > 0) {
+        const title = document.createElement('div');
+        title.className = 'search-group-title';
+        title.innerText = 'Songs';
+        searchResultsUl.appendChild(title);
+        loadMusicList(filteredSongs, searchResultsUl);
+    }
+
+    if (filteredArtists.length > 0) {
+        const title = document.createElement('div');
+        title.className = 'search-group-title';
+        title.innerText = 'Artists';
+        searchResultsUl.appendChild(title);
+
+        filteredArtists.forEach(artistName => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="row">
+                    <i class="material-icons" style="margin-right: 15px; color: var(--highlight);">person</i>
+                    <div class="info">
+                        <span>${artistName}</span>
+                        <p>Artist</p>
+                    </div>
+                </div>
+            `;
+            li.onclick = () => {
+                const artistSongs = allMusic.filter(s => s.artist === artistName);
+                loadArtistDetails(artistName, artistSongs);
+            };
+            searchResultsUl.appendChild(li);
+        });
+    }
+
+    if (filteredAlbums.length > 0) {
+        const title = document.createElement('div');
+        title.className = 'search-group-title';
+        title.innerText = 'Albums';
+        searchResultsUl.appendChild(title);
+
+        filteredAlbums.forEach(albumName => {
+            const albumData = allMusic.find(s => s.album === albumName);
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="row">
+                    <i class="material-icons" style="margin-right: 15px; color: var(--highlight);">album</i>
+                    <div class="info">
+                        <span>${albumName}</span>
+                        <p>${albumData.artist}</p>
+                    </div>
+                </div>
+            `;
+            li.onclick = () => {
+                const albumSongs = allMusic.filter(s => s.album === albumName);
+                loadAlbumDetails({
+                    name: albumName,
+                    artist: albumData.artist,
+                    img: albumData.img,
+                    albumImg: albumData.albumImg,
+                    songs: albumSongs
+                });
+            };
+            searchResultsUl.appendChild(li);
+        });
+    }
+
+    if (filteredSongs.length === 0 && filteredArtists.length === 0 && filteredAlbums.length === 0) {
+        searchResultsUl.innerHTML = `<li style="justify-content:center;">No results found</li>`;
+    }
 });
 
 // Tabs Navigation
@@ -718,8 +819,13 @@ function loadAlbums() {
 
 // Load Album Details
 function loadAlbumDetails(album) {
-    albumDetailName.innerText = album.name;
-    albumDetailArtist.innerText = album.artist;
+    const albumDetailName = document.getElementById("album-detail-name");
+    const albumDetailArtist = document.getElementById("album-detail-artist");
+    const albumDetailImg = document.getElementById("album-detail-img");
+
+    if (albumDetailName) albumDetailName.innerText = album.name;
+    if (albumDetailArtist) albumDetailArtist.innerText = album.artist;
+
     // Priority: 1. albumImg override, 2. slugified name, 3. fallback to song image
     const albumSlug = album.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 

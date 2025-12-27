@@ -4,7 +4,7 @@
 
 // Lyric Data Store - Mapping song source names to their lyrics
 const musicLyrics = {
-    "music-1": `[00:22.06]Tu Mera Koyi Na
+    "apnabanale": `[00:22.06]Tu Mera Koyi Na
 [00:24.19]Hoke Bhi Kuchh Laage
 [00:26.84]Tu Mera Koyi Na
 [00:29.23]Hoke Bhi Kuchh Laage

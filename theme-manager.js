@@ -19,6 +19,40 @@ class ThemeManager {
             custom: { primary: '#ff74a4', secondary: '#9f6ea3', accent: '#ff74a4' }
         };
         this.currentTheme = 'pink';
+        this.darkMode = false;
+        this.initDarkMode();
+    }
+
+    initDarkMode() {
+        const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+        this.darkMode = savedDarkMode;
+        if (this.darkMode) {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Initialize toggle switch if it exists
+        const toggle = document.getElementById('dark-mode-toggle');
+        if (toggle) {
+            toggle.checked = this.darkMode;
+            toggle.addEventListener('change', () => {
+                this.toggleDarkMode();
+            });
+        }
+    }
+
+    toggleDarkMode() {
+        this.darkMode = !this.darkMode;
+        document.body.classList.toggle('dark-mode', this.darkMode);
+        localStorage.setItem('darkMode', this.darkMode);
+
+        // Re-apply theme to adjust background gradients if necessary
+        const saved = localStorage.getItem('selectedTheme');
+        if (saved) {
+            const themeData = JSON.parse(saved);
+            this.applyTheme(themeData.name, themeData.customColor);
+        } else {
+            this.applyTheme(this.currentTheme);
+        }
     }
 
     applyTheme(themeName, customColor = null) {
@@ -37,9 +71,16 @@ class ThemeManager {
             document.documentElement.style.setProperty('--accent', theme.accent);
 
             // Update body background with subtle gradient
-            const lightAccent = this.hexToRgba(theme.accent, 0.1);
+            const lightAccent = this.hexToRgba(theme.accent, 0.15);
             const lighterAccent = this.hexToRgba(theme.accent, 0.05);
-            document.body.style.background = `linear-gradient(135deg, ${lighterAccent} 0%, #fff 50%, ${lightAccent} 100%)`;
+            const baseBg = this.darkMode ? '#0a0a0a' : '#fff';
+
+            if (this.darkMode) {
+                // Premium dark mode: deep black with a subtle accent glow from the top right
+                document.body.style.background = `radial-gradient(circle at top right, ${this.hexToRgba(theme.accent, 0.12)} 0%, ${baseBg} 60%)`;
+            } else {
+                document.body.style.background = `linear-gradient(135deg, ${lighterAccent} 0%, ${baseBg} 50%, ${lightAccent} 100%)`;
+            }
 
             // Update glass and opacity backgrounds
             document.documentElement.style.setProperty('--glass-accent', this.hexToRgba(theme.accent, 0.08));

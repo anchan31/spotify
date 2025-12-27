@@ -3,10 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="Favicon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff74a4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="Favicon.png">
     <title>Music Player</title>
     <style>
         /* Inline add-to-queue button style */
@@ -121,13 +126,15 @@
             <!-- Artist Details View (Hidden by default) -->
             <section id="artist-details-view" class="view">
                 <div class="artist-header">
-                    <i class="material-icons back-btn" id="artist-back">arrow_back</i>
-                    <div class="artist-info-large">
+                    <div class="artist-header-top">
+                        <i class="material-icons back-btn" id="artist-back">arrow_back</i>
                         <img src="" alt="" id="ad-img">
-                        <div class="info-text">
-                            <h2 id="ad-name">Artist Name</h2>
-                            <button id="ad-play-all">Play All</button>
-                        </div>
+                        <button id="ad-play-all" class="play-all-pill">
+                            <i class="material-icons">play_arrow</i> Play All
+                        </button>
+                    </div>
+                    <div class="artist-header-text">
+                        <h2 id="ad-name">Artist Name</h2>
                     </div>
                 </div>
                 <div class="artist-songs-list">
@@ -150,14 +157,16 @@
             <!-- Album Details View (Hidden by default) -->
             <section id="album-details-view" class="view">
                 <div class="album-header">
-                    <i class="material-icons back-btn" id="album-back">arrow_back</i>
-                    <div class="album-info-large">
+                    <div class="album-header-top">
+                        <i class="material-icons back-btn" id="album-back">arrow_back</i>
                         <img src="" alt="" id="album-detail-img">
-                        <div class="info-text">
-                            <h2 id="album-detail-name">Album Name</h2>
-                            <p id="album-detail-artist">Artist Name</p>
-                            <button id="album-play-all">Play All</button>
-                        </div>
+                        <button id="album-play-all" class="play-all-pill">
+                            <i class="material-icons">play_arrow</i> Play All
+                        </button>
+                    </div>
+                    <div class="album-header-text">
+                        <h2 id="album-detail-name">Album Name</h2>
+                        <p id="album-detail-artist">Artist Name</p>
                     </div>
                 </div>
                 <div class="album-songs-list">
@@ -180,6 +189,17 @@
 
                     <!-- Themes Panel -->
                     <div class="settings-panel active" id="themes-panel">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Dark Mode</h3>
+                                <p>Switch between light and dark appearance</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="dark-mode-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+
                         <h3>Color Themes</h3>
                         <div class="theme-options">
                             <div class="theme-option active" data-theme="pink">
@@ -282,7 +302,7 @@
         <div class="fs-header">
             <i class="material-icons" id="collapse-player">keyboard_arrow_down</i>
             <span>Now Playing</span>
-            <i class="material-icons">more_vert</i>
+            <i class="material-icons" id="fs-queue-toggle">more_vert</i>
         </div>
 
         <div class="fs-content-wrapper">
@@ -312,7 +332,6 @@
                 </div>
                 <i id="fs-next" class="material-icons">skip_next</i>
                 <i id="fs-lyrics-toggle" class="material-icons">lyrics</i>
-                <i id="fs-queue-toggle" class="material-icons">queue_music</i>
                 <i id="fs-visualizer-toggle" class="material-icons"
                     title="Toggle Visualizer (double-click to change style)" role="button" tabindex="0"
                     aria-pressed="false">graphic_eq</i>
@@ -359,6 +378,15 @@
     <script src="visualizer.js"></script>
     <script src="theme-manager.js"></script>
     <script src="music-Scripts.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed', err));
+            });
+        }
+    </script>
 </body>
 
 </html>

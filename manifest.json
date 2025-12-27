@@ -1,0 +1,22 @@
+{
+  "name": "Spotify Music Player",
+  "short_name": "Spotify",
+  "description": "A premium, glassmorphism-inspired music player.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff74a4",
+  "icons": [
+    {
+      "src": "Favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "Favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
