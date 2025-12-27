@@ -4,18 +4,70 @@
 
 // Lyric Data Store - Mapping song source names to their lyrics
 const musicLyrics = {
-    "music-1": `
-[00:00.00]Tu meri zindagi hai
-[00:04.00]Tu meri bandagi hai
-[00:08.00]Tu hi mera jahan hai
-[00:12.00]Tera mera naam hai
-[00:16.00]Dil mera yahaan hai
-[00:20.00]Apna bana le
-[00:24.00]Piya apna bana le
-[00:28.00]Saansein meri ab
-[00:32.00]Teri raah takein
-[00:36.00]Main rahoon jahan both
-[00:40.00]Teri yaad aaye
+    "music-1": `[00:22.06]Tu Mera Koyi Na
+[00:24.19]Hoke Bhi Kuchh Laage
+[00:26.84]Tu Mera Koyi Na
+[00:29.23]Hoke Bhi Kuchh Laage
+[00:31.89]Kiya Re Jo Bhi Toone
+[00:33.76]Kaise Kiya Re
+[00:37.22]Jiya Ko Mere Baandh
+[00:39.61]Aise Liya Re
+[00:42.26]Samajh Ke Bhi Na
+[00:44.92]Samajh Main Sakun
+[00:47.57]Saweron Ka Bhi Mere
+[00:49.97]Tu Sooraj Laage
+[00:52.62]Tu Mera Koyi Na
+[00:55.01]Hoke Bhi Kuchh Laage
+[00:57.67]Tu Mera Koyi Na
+[01:00.06]Hoke Bhi Kuchh Laage
+[01:02.72]Tu Mera Koyi Na
+[01:05.11]Hoke Bhi Kuchh Laage
+[01:09.89]Apna Bana Le Piya
+[01:12.02]Apna Bana Le Piya
+[01:14.93]Apna Bana Le Mujhe
+[01:16.80]Apna Bana Le Piya
+[01:20.25]Apna Bana Le Piya
+[01:22.64]Apna Bana Le Piya
+[01:25.03]Dil Ke Nagar Mein
+[01:28.22]Shehar Tu Basa Le Piya
+[01:53.46]Chhoone Se Tere
+[01:55.31]Haan Tere Haan Tere
+[02:00.36]Feeki Ruton Ko Rang Lage
+[02:07.81]Hmm.. Chhoone Se Tere
+[02:10.71]Haan Tere Haan Tere
+[02:13.90]Feeki Ruton Ko Rang Lage
+[02:18.95]Teri Disha Mein Kyun Chalne Se Mere
+[02:24.00]Pairon Ko Pankh Lage
+[02:27.19]Raha Na Mere Kaam Ka Jag Saara
+[02:32.24]Haan Bas Tere Naam Se Hi Guzaara
+[02:37.28]Ulajh Ke Yoon Na
+[02:41.00]Sulajh Na Sakun
+[02:45.25]Zubaaniyan Teri
+[02:47.64]Jhoothi Bhi Sach Laage
+[02:50.03]Tu Mera Koyi Na
+[02:52.42]Hoke Bhi Kuchh Laage
+[02:55.08]Tu Mera Koyi Na
+[02:59.06]Hoke Bhi Kuchh Laage
+[03:00.65]Tu Mera Koyi Na
+[03:03.04]Hoke Bhi Kuchh Laage
+[03:07.29]Apna Bana Le Piya
+[03:09.42]Apna Bana Le Piya
+[03:12.07]Apna Bana Le Mujhe
+[03:14.20]Apna Bana Le Piya
+[03:17.39]Apna Bana Le Piya
+[03:19.51]Apna Bana Le Piya
+[03:22.17]Dil Ke Nagar Mein
+[03:24.29]Shehar Tu Basa Le Piya
+[03:29.34]Ho Sab Kuchh Mera Chahe
+[03:34.12]Naam Apne Likha Le
+[03:39.17]Badle Mein Itni Toh
+[03:44.48]Yaari Nibha Le
+[03:49.53]Jag Ki Hirasat Se
+[03:53.51]Mujhko Chhuda Le
+[03:58.29]Apna Bana Le
+[04:02.28]Bas Apna Bana Le
+[04:08.13]Apna Bana Le
+[04:12.90]Apna Bana Le
 `,
     "music-2": [
         { time: 0, text: "We are the players" },

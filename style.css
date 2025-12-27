@@ -774,7 +774,7 @@ body {
 
 .lyrics-line {
     margin: 20px 0;
-    font-size: 24px;
+    font-size: 30px;
     /* Larger text for full screen read */
     color: #bbb;
     transition: 0.3s;
@@ -788,7 +788,7 @@ body {
 
 .lyrics-line.active {
     color: var(--highlight);
-    transform: scale(1.1);
+    transform: scale(1.5);
     font-weight: 800;
     text-shadow: 0 4px 15px var(--accent-a30);
 }
