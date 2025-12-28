@@ -1,6 +1,6 @@
 {
-  "name": "Spotify Music Player",
-  "short_name": "Spotify",
+  "name": "Spotify Music Player v4.0.0",
+  "short_name": "Spotify v4",
   "description": "A premium, glassmorphism-inspired music player.",
   "start_url": "./index.html",
   "display": "standalone",

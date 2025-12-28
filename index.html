@@ -15,21 +15,31 @@
     <title>Music Player</title>
     <style>
         /* Inline add-to-queue button style */
-        .add-to-queue {
+        .add-to-queue,
+        .add-to-playlist-btn {
             opacity: 0;
             transition: opacity 0.3s;
             cursor: pointer;
             padding: 5px;
             border-radius: 50%;
+            font-size: 20px;
+            color: var(--text-light, #999);
         }
 
         .music-list-container li:hover .add-to-queue,
-        .search-results li:hover .add-to-queue {
+        .search-results li:hover .add-to-queue,
+        .music-list-container li:hover .add-to-playlist-btn,
+        .search-results li:hover .add-to-playlist-btn {
             opacity: 1;
         }
 
         .add-to-queue:hover {
             background: rgba(255, 116, 164, 0.1);
+        }
+
+        .add-to-playlist-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--highlight, #ff74a4);
         }
     </style>
 </head>
@@ -59,6 +69,14 @@
                     <i class="material-icons">album</i>
                     <span>Albums</span>
                 </li>
+                <li data-view="liked">
+                    <i class="material-icons">favorite</i>
+                    <span>Liked Songs</span>
+                </li>
+                <li data-view="playlists">
+                    <i class="material-icons">playlist_play</i>
+                    <span>Playlists</span>
+                </li>
                 <li data-view="settings">
                     <i class="material-icons">settings</i>
                     <span>Settings</span>
@@ -72,6 +90,26 @@
             <section id="home-view" class="view active">
                 <div class="header-greeting">
                     <h2 id="greeting-text">Good Evening</h2>
+                </div>
+
+                <!-- Quick Access -->
+                <div class="quick-access">
+                    <div class="quick-access-item" data-view="liked">
+                        <i class="material-icons">favorite</i>
+                        <span>Liked Songs</span>
+                    </div>
+                    <div class="quick-access-item" data-view="playlists">
+                        <i class="material-icons">playlist_play</i>
+                        <span>Playlists</span>
+                    </div>
+                    <div class="quick-access-item" id="recently-played-quick">
+                        <i class="material-icons">history</i>
+                        <span>Recently Played</span>
+                    </div>
+                    <div class="quick-access-item" id="most-played-quick">
+                        <i class="material-icons">trending_up</i>
+                        <span>Most Played</span>
+                    </div>
                 </div>
 
                 <!-- Featured Albums -->
@@ -178,6 +216,57 @@
                 </div>
             </section>
 
+            <!-- Liked Songs View -->
+            <section id="liked-view" class="view">
+                <h2>Liked Songs</h2>
+                <div class="music-list-container">
+                    <ul id="liked-list-ul"></ul>
+                </div>
+            </section>
+
+            <!-- Playlists View -->
+            <section id="playlists-view" class="view">
+                <div class="playlists-header">
+                    <h2>Your Playlists</h2>
+                    <button id="create-playlist-btn" class="create-playlist-btn">
+                        <i class="material-icons">add</i> Create Playlist
+                    </button>
+                </div>
+                <div class="playlists-grid" id="playlists-grid">
+                    <!-- Playlists will be injected here -->
+                </div>
+            </section>
+
+            <!-- Playlist Details View -->
+            <section id="playlist-details-view" class="view">
+                <div class="playlist-header">
+                    <div class="playlist-header-top">
+                        <i class="material-icons back-btn" id="playlist-back">arrow_back</i>
+                        <div class="playlist-artwork" id="playlist-artwork">
+                            <!-- 4-image grid or single image -->
+                        </div>
+                        <button id="playlist-play-all" class="play-all-pill">
+                            <i class="material-icons">play_arrow</i> Play All
+                        </button>
+                    </div>
+                    <div class="playlist-header-text">
+                        <h2 id="playlist-detail-name">Playlist Name</h2>
+                        <p id="playlist-detail-info">0 songs</p>
+                    </div>
+                    <div class="playlist-actions">
+                        <button id="playlist-edit-btn" class="small-btn">
+                            <i class="material-icons">edit</i> Edit
+                        </button>
+                        <button id="playlist-delete-btn" class="small-btn delete-btn">
+                            <i class="material-icons">delete</i> Delete
+                        </button>
+                    </div>
+                </div>
+                <div class="playlist-songs-list">
+                    <ul id="playlist-songs-ul"></ul>
+                </div>
+            </section>
+
             <!-- Settings View -->
             <section id="settings-view" class="view">
                 <h2>Settings</h2>
@@ -185,6 +274,10 @@
                     <!-- Tabs -->
                     <div class="settings-tabs">
                         <button class="settings-tab active" data-settings-tab="themes">Themes</button>
+                        <button class="settings-tab" data-settings-tab="audio">Audio & EQ</button>
+                        <button class="settings-tab" data-settings-tab="playback">Playback</button>
+                        <button class="settings-tab" data-settings-tab="stats">Statistics</button>
+                        <button class="settings-tab" data-settings-tab="shortcuts">Shortcuts</button>
                     </div>
 
                     <!-- Themes Panel -->
@@ -256,6 +349,256 @@
                         <div class="custom-color-picker" style="display: none;">
                             <label>Pick Your Color:</label>
                             <input type="color" id="custom-theme-color" value="#ff74a4">
+                        </div>
+                    </div>
+
+                    <!-- Audio & EQ Panel -->
+                    <div class="settings-panel" id="audio-panel">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Crossfade</h3>
+                                <p>Transition between songs (0-3s)</p>
+                            </div>
+                            <input type="range" id="crossfade-duration" min="0" max="3" step="0.5" value="0">
+                            <span id="crossfade-value">0s</span>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Playback Speed</h3>
+                                <p>Adjust playback speed (0.5x - 2x)</p>
+                            </div>
+                            <input type="range" id="playback-speed" min="0.5" max="2" step="0.1" value="1">
+                            <span id="speed-value">1.0x</span>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Sleep Timer</h3>
+                                <p>Auto-stop playback after selected time</p>
+                            </div>
+                            <select id="sleep-timer">
+                                <option value="0">Off</option>
+                                <option value="5">5 minutes</option>
+                                <option value="10">10 minutes</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="90">1.5 hours</option>
+                                <option value="120">2 hours</option>
+                            </select>
+                            <span id="sleep-timer-status"></span>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Volume Normalization</h3>
+                                <p>Keep volume level consistent</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="normalize-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+
+                        <div class="eq-container">
+                            <h3>10-Band Equalizer</h3>
+                            <div class="eq-presets">
+                                <button class="preset-btn active" data-preset="normal">Normal</button>
+                                <button class="preset-btn" data-preset="bass-boost">Bass Boost</button>
+                                <button class="preset-btn" data-preset="treble-boost">Treble Boost</button>
+                                <button class="preset-btn" data-preset="pop">Pop</button>
+                                <button class="preset-btn" data-preset="rock">Rock</button>
+                                <button class="preset-btn" data-preset="classical">Classical</button>
+                            </div>
+                            <div class="eq-sliders">
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="0" min="-12" max="12" value="0">
+                                    <span class="eq-label">32</span>
+                                </div>
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="1" min="-12" max="12" value="0">
+                                    <span class="eq-label">64</span>
+                                </div>
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="2" min="-12" max="12" value="0">
+                                    <span class="eq-label">125</span>
+                                </div>
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="3" min="-12" max="12" value="0">
+                                    <span class="eq-label">250</span>
+                                </div>
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="4" min="-12" max="12" value="0">
+                                    <span class="eq-label">500</span>
+                                </div>
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="5" min="-12" max="12" value="0">
+                                    <span class="eq-label">1k</span>
+                                </div>
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="6" min="-12" max="12" value="0">
+                                    <span class="eq-label">2k</span>
+                                </div>
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="7" min="-12" max="12" value="0">
+                                    <span class="eq-label">4k</span>
+                                </div>
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="8" min="-12" max="12" value="0">
+                                    <span class="eq-label">8k</span>
+                                </div>
+                                <div class="eq-band">
+                                    <input type="range" class="eq-slider" data-band="9" min="-12" max="12" value="0">
+                                    <span class="eq-label">16k</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Playback Panel -->
+                    <div class="settings-panel" id="playback-panel">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Gapless Playback</h3>
+                                <p>Seamless transitions between tracks</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="gapless-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Auto-play Next</h3>
+                                <p>Automatically play next song when current ends</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="autoplay-toggle" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Show Queue on Play</h3>
+                                <p>Automatically show queue when adding songs</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="auto-queue-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Panel -->
+                    <div class="settings-panel" id="stats-panel">
+                        <h3>Your Music Statistics</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="material-icons">music_note</i></div>
+                                <div class="stat-value" id="total-songs">0</div>
+                                <div class="stat-label">Total Songs</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="material-icons">favorite</i></div>
+                                <div class="stat-value" id="total-favorites">0</div>
+                                <div class="stat-label">Liked Songs</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="material-icons">playlist_play</i></div>
+                                <div class="stat-value" id="total-playlists">0</div>
+                                <div class="stat-label">Playlists</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="material-icons">play_arrow</i></div>
+                                <div class="stat-value" id="total-plays">0</div>
+                                <div class="stat-label">Total Plays</div>
+                            </div>
+                        </div>
+
+                        <h3 style="margin-top: 30px;">Most Played</h3>
+                        <div class="music-list-container">
+                            <ul id="most-played-list"></ul>
+                        </div>
+
+                        <h3 style="margin-top: 30px;">Recently Played</h3>
+                        <div class="music-list-container">
+                            <ul id="recently-played-list"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Keyboard Shortcuts Panel -->
+                    <div class="settings-panel" id="shortcuts-panel">
+                        <h3>Keyboard Shortcuts</h3>
+                        <div class="shortcuts-list">
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>Space</kbd>
+                                </div>
+                                <div class="shortcut-desc">Play/Pause</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>←</kbd> / <kbd>→</kbd>
+                                </div>
+                                <div class="shortcut-desc">Seek backward/forward 5s</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>N</kbd>
+                                </div>
+                                <div class="shortcut-desc">Next Song</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>P</kbd>
+                                </div>
+                                <div class="shortcut-desc">Previous Song</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>M</kbd>
+                                </div>
+                                <div class="shortcut-desc">Mute/Unmute</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>↑</kbd> / <kbd>↓</kbd>
+                                </div>
+                                <div class="shortcut-desc">Volume Up/Down</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>F</kbd>
+                                </div>
+                                <div class="shortcut-desc">Toggle Favorite</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>Q</kbd>
+                                </div>
+                                <div class="shortcut-desc">Add to Queue</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>L</kbd>
+                                </div>
+                                <div class="shortcut-desc">Toggle Lyrics</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>V</kbd>
+                                </div>
+                                <div class="shortcut-desc">Toggle Visualizer</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="shortcut-keys">
+                                    <kbd>?</kbd>
+                                </div>
+                                <div class="shortcut-desc">Show/Hide Shortcuts</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -335,6 +678,13 @@
                 <i id="fs-visualizer-toggle" class="material-icons"
                     title="Toggle Visualizer (double-click to change style)" role="button" tabindex="0"
                     aria-pressed="false">graphic_eq</i>
+                <div class="rating-controls" id="rating-controls">
+                    <i class="material-icons star-rating" data-rating="1">star_border</i>
+                    <i class="material-icons star-rating" data-rating="2">star_border</i>
+                    <i class="material-icons star-rating" data-rating="3">star_border</i>
+                    <i class="material-icons star-rating" data-rating="4">star_border</i>
+                    <i class="material-icons star-rating" data-rating="5">star_border</i>
+                </div>
             </div>
 
             <!-- Audio Visualizer Canvas -->
@@ -355,6 +705,9 @@
                 </div>
             </div>
             <div class="queue-footer">
+                <button id="shuffle-queue" class="queue-action-btn">
+                    <i class="material-icons">shuffle</i> Shuffle
+                </button>
                 <button id="clear-queue" class="clear-queue-btn">Clear Queue</button>
             </div>
         </div>
@@ -369,9 +722,15 @@
         </div>
     </div>
 
-    <!-- Audio Element (Hidden or handled globally) -->
+    <!-- Audio Elements (Main and Crossfade) -->
     <audio id="main-audio" src="" crossorigin="anonymous"></audio>
+    <audio id="crossfade-audio" src="" crossorigin="anonymous"></audio>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="db-manager.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.min.js"></script>
     <script src="music-list.js"></script>
     <script src="lyrics.js"></script>

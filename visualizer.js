@@ -22,20 +22,26 @@ class AudioVisualizer {
 
     initialize() {
         console.log('Visualizer: Starting initialization...');
-        // Create a new AudioContext and analyser for the visualizer.
-        // We deliberately do not attempt to attach to any external equalizer module.
-        try {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            this.source = this.audioContext.createMediaElementSource(this.audio);
-            this.analyser = this.audioContext.createAnalyser();
-            this.analyser.fftSize = 256;
+        // Try to use shared AudioContext from equalizer if available
+        if (window.equalizer && window.equalizer.isInitialized) {
+            this.audioContext = window.equalizer.getAudioContext();
+            this.analyser = window.equalizer.getAnalyser();
+            console.log('Visualizer: Using shared audio context from equalizer');
+        } else {
+            // Create a new AudioContext and analyser for the visualizer.
+            try {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                this.source = this.audioContext.createMediaElementSource(this.audio);
+                this.analyser = this.audioContext.createAnalyser();
+                this.analyser.fftSize = 256;
 
-            this.source.connect(this.analyser);
-            this.analyser.connect(this.audioContext.destination);
-            console.log('Visualizer: Created independent audio graph');
-        } catch (error) {
-            console.error('Visualizer: Failed to create audio graph (media source may already exist):', error);
-            return;
+                this.source.connect(this.analyser);
+                this.analyser.connect(this.audioContext.destination);
+                console.log('Visualizer: Created independent audio graph');
+            } catch (error) {
+                console.error('Visualizer: Failed to create audio graph (media source may already exist):', error);
+                return;
+            }
         }
 
         if (this.analyser) {
@@ -204,3 +210,102 @@ class AudioVisualizer {
 
 // Global instance
 let visualizer = null;
+
+// ==================== 10-BAND EQUALIZER ====================
+
+class Equalizer {
+    constructor(audioElement) {
+        this.audio = audioElement;
+        this.audioContext = null;
+        this.source = null;
+        this.analyser = null;
+        this.filters = [];
+        this.gainNode = null;
+        this.isInitialized = false;
+        
+        // 10-band EQ frequencies (Hz)
+        this.frequencies = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
+    }
+    
+    initialize() {
+        if (this.isInitialized) return;
+        
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.source = this.audioContext.createMediaElementSource(this.audio);
+            this.analyser = this.audioContext.createAnalyser();
+            this.gainNode = this.audioContext.createGain();
+            
+            // Create 10 band-pass filters
+            this.filters = this.frequencies.map((freq, index) => {
+                const filter = this.audioContext.createBiquadFilter();
+                filter.type = 'peaking';
+                filter.frequency.value = freq;
+                filter.Q.value = 1;
+                filter.gain.value = 0;
+                return filter;
+            });
+            
+            // Connect: source -> filter chain -> gain -> analyser -> destination
+            let currentNode = this.source;
+            this.filters.forEach(filter => {
+                currentNode.connect(filter);
+                currentNode = filter;
+            });
+            currentNode.connect(this.gainNode);
+            this.gainNode.connect(this.analyser);
+            this.analyser.connect(this.audioContext.destination);
+            
+            this.isInitialized = true;
+            console.log('Equalizer initialized');
+        } catch (error) {
+            console.error('Error initializing equalizer:', error);
+            // If media source already exists, try to reuse existing context
+            if (error.name === 'InvalidStateError') {
+                console.warn('Audio source may already be connected. Equalizer may not work correctly.');
+            }
+        }
+    }
+    
+    setBandGain(band, gain) {
+        if (!this.isInitialized) this.initialize();
+        if (band >= 0 && band < this.filters.length) {
+            // Clamp gain between -12 and 12 dB
+            gain = Math.max(-12, Math.min(12, gain));
+            this.filters[band].gain.value = gain;
+        }
+    }
+    
+    getBandGain(band) {
+        if (band >= 0 && band < this.filters.length) {
+            return this.filters[band].gain.value;
+        }
+        return 0;
+    }
+    
+    getAnalyser() {
+        if (!this.isInitialized) this.initialize();
+        return this.analyser;
+    }
+    
+    getAudioContext() {
+        if (!this.isInitialized) this.initialize();
+        return this.audioContext;
+    }
+}
+
+// Global equalizer instance
+let equalizer = null;
+
+// Initialize equalizer function (called from music-Scripts.js)
+function initEqualizer(audioElement) {
+    if (!equalizer) {
+        equalizer = new Equalizer(audioElement);
+        equalizer.initialize();
+        window.equalizer = equalizer; // Make it globally accessible
+    }
+    return equalizer;
+}
+
+// Make it globally accessible
+window.initEqualizer = initEqualizer;

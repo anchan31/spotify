@@ -143,12 +143,16 @@ function loadLyrics(indexNumb) {
             p.classList.add("lyrics-line");
             p.innerText = line.text;
             p.setAttribute("data-time", line.time);
+            p.style.fontSize = lyricsFontSize + 'px';
+            p.style.color = lyricsColor;
             p.onclick = () => {
                 mainAudio.currentTime = line.time;
                 playMusic();
             };
             lyricsContentFs.appendChild(p);
         });
+        
+        updateLyricsStyles();
 
     } else {
         lyricsContentFs.innerHTML = "<p>No lyrics available.</p>";
@@ -173,19 +177,28 @@ function updateLyrics(time) {
     if (activeLine) {
         // Only update if changed
         if (lastActiveLine !== activeLine) {
-            lines.forEach(l => l.classList.remove("active"));
+            lines.forEach(l => {
+                l.classList.remove("active");
+                l.style.color = lyricsColor;
+            });
             activeLine.classList.add("active");
+            activeLine.style.color = getComputedStyle(document.documentElement).getPropertyValue('--highlight').trim() || '#ff74a4';
             activeLine.scrollIntoView({ behavior: "smooth", block: "center" });
             lastActiveLine = activeLine;
         }
     }
 }
 
+// Lyrics Settings
+let lyricsFontSize = 30; // Default font size
+let lyricsColor = '#bbb'; // Default color
+
 // Setup Lyrics Event Listeners
 function setupLyricsHandlers() {
     if (fsLyricsToggle) {
         fsLyricsToggle.addEventListener("click", () => {
             lyricsOverlay.classList.add("show");
+            updateLyricsStyles();
         });
     }
     if (lyricsCloseFs) {
@@ -193,6 +206,59 @@ function setupLyricsHandlers() {
             lyricsOverlay.classList.remove("show");
         });
     }
+    
+    // Load saved settings
+    const savedSize = localStorage.getItem('lyricsFontSize');
+    if (savedSize) {
+        lyricsFontSize = parseInt(savedSize);
+    }
+    const savedColor = localStorage.getItem('lyricsColor');
+    if (savedColor) {
+        lyricsColor = savedColor;
+    }
+    
+    // Add settings controls to lyrics header
+    if (lyricsOverlay) {
+        const header = lyricsOverlay.querySelector('.lyrics-header-fs');
+        if (header && !header.querySelector('.lyrics-settings')) {
+            const settingsDiv = document.createElement('div');
+            settingsDiv.className = 'lyrics-settings';
+            settingsDiv.innerHTML = `
+                <label>Font Size: <input type="range" id="lyrics-size-slider" min="16" max="48" value="${lyricsFontSize}"></label>
+                <label>Color: <input type="color" id="lyrics-color-picker" value="${lyricsColor}"></label>
+            `;
+            header.appendChild(settingsDiv);
+            
+            const sizeSlider = document.getElementById('lyrics-size-slider');
+            const colorPicker = document.getElementById('lyrics-color-picker');
+            
+            if (sizeSlider) {
+                sizeSlider.addEventListener('input', (e) => {
+                    lyricsFontSize = parseInt(e.target.value);
+                    localStorage.setItem('lyricsFontSize', lyricsFontSize);
+                    updateLyricsStyles();
+                });
+            }
+            
+            if (colorPicker) {
+                colorPicker.addEventListener('input', (e) => {
+                    lyricsColor = e.target.value;
+                    localStorage.setItem('lyricsColor', lyricsColor);
+                    updateLyricsStyles();
+                });
+            }
+        }
+    }
+}
+
+function updateLyricsStyles() {
+    const lines = document.querySelectorAll('.lyrics-line');
+    lines.forEach(line => {
+        line.style.fontSize = lyricsFontSize + 'px';
+        if (!line.classList.contains('active')) {
+            line.style.color = lyricsColor;
+        }
+    });
 }
 
 // Auto-setup when script loads (variables like fsLyricsToggle must be global)
