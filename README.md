@@ -57,19 +57,15 @@ To add new songs to the player:
 
 This project is automatically deployed to **GitHub Pages**. Every push to the `main` branch triggers a new build.
 
-## � Version History
+## Version History
 
-<<<<<<< HEAD
 - **v3.0.0** (Active) - Major upgrade: Dark Mode, Mobile Responsiveness, and PWA Support.
 - **v2.0.2** - Latest stable release before v3 upgrade.
-=======
-- **v2.0.2** (Active) - Latest stable release.
->>>>>>> bd2ed6e12d7f99b13a40757758275687fc71b7fd
 - **v2.0.1** - Bug fixes and stability improvements.
 - **v2.0.0** - Major redesign with glassmorphism and enhanced features.
 - **Nov 26, 2025** - Initial project structure cleanup and `index.html` setup.
 
-## �📝 License
+## 📝 License
 
 This project is for educational and personal use. 
 
