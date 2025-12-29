@@ -46,43 +46,61 @@
 </head>
 
 <body>
-    <div class="app-container">
+    <!-- Login Overlay -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="material-icons">music_note</i>
+            </div>
+            <h1>Welcome Back</h1>
+            <p>Sign in to access your music library</p>
+
+            <button id="google-login-btn" onclick="signInWithGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
+                <span>Sign in with Google</span>
+            </button>
+            <p id="login-error-msg" style="color: red; display: none; margin-top: 10px; font-size: 0.9em;"></p>
+        </div>
+    </div>
+
+    <div class="app-container" style="display: none;">
         <!-- Sidebar -->
         <nav class="sidebar">
-            <div class="logo">
-                <i class="material-icons">music_note</i>
-                <span>Music Player</span>
+            <div class="profile-summary" id="sidebar-profile">
+                <img src="images/music-placeholder.jpg" alt="Profile" id="sidebar-profile-img">
+                <div class="profile-text">
+                    <span id="sidebar-profile-name">User</span>
+                    <span class="status-text">Online</span>
+                </div>
             </div>
-            <ul>
-                <li class="active" data-view="home">
-                    <i class="material-icons">home</i>
-                    <span>Home</span>
-                </li>
-                <li data-view="search">
-                    <i class="material-icons">search</i>
-                    <span>Search</span>
-                </li>
-                <li data-view="artists">
-                    <i class="material-icons">library_music</i>
-                    <span>Artists</span>
-                </li>
-                <li data-view="albums">
-                    <i class="material-icons">album</i>
-                    <span>Albums</span>
-                </li>
-                <li data-view="liked">
-                    <i class="material-icons">favorite</i>
-                    <span>Liked Songs</span>
-                </li>
-                <li data-view="playlists">
-                    <i class="material-icons">playlist_play</i>
-                    <span>Playlists</span>
-                </li>
-                <li data-view="settings">
-                    <i class="material-icons">settings</i>
-                    <span>Settings</span>
-                </li>
-            </ul>
+
+            <div class="nav-links">
+                <ul>
+                    <li class="active" data-view="home">
+                        <i class="material-icons">home</i>
+                        <span>Home</span>
+                    </li>
+                    <li data-view="search">
+                        <i class="material-icons">search</i>
+                        <span>Search</span>
+                    </li>
+                    <li data-view="library">
+                        <i class="material-icons">library_music</i>
+                        <span>Your Library</span>
+                    </li>
+                    <li data-view="settings">
+                        <i class="material-icons">settings</i>
+                        <span>Settings</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <button id="sidebar-sign-out-btn">
+                    <i class="material-icons">logout</i>
+                    <span>Sign Out</span>
+                </button>
+            </div>
         </nav>
 
         <!-- Main Content -->
@@ -93,24 +111,34 @@
                     <h2 id="greeting-text">Good Evening</h2>
                 </div>
 
-                <!-- Quick Access -->
-                <div class="quick-access">
-                    <div class="quick-access-item" data-view="liked">
-                        <i class="material-icons">favorite</i>
-                        <span>Liked Songs</span>
+                <!-- Trending Songs (Horizontal) -->
+                <div class="section-title">
+                    <h3>Trending Now</h3>
+                </div>
+                <div class="trending-container">
+                    <div class="trending-scroll" id="trending-scroll">
+                        <!-- Trending songs injected here -->
                     </div>
-                    <div class="quick-access-item" data-view="playlists">
-                        <i class="material-icons">playlist_play</i>
-                        <span>Playlists</span>
+                </div>
+
+                <!-- Featured Artists (Circular) -->
+                <div class="section-title">
+                    <h3>Your Artists</h3>
+                </div>
+                <div class="featured-container">
+                    <div class="featured-artists circular-artists" id="featured-artists">
+                        <!-- Featured artists injected here -->
                     </div>
-                    <div class="quick-access-item" id="recently-played-quick">
-                        <i class="material-icons">history</i>
-                        <span>Recently Played</span>
-                    </div>
-                    <div class="quick-access-item" id="most-played-quick">
-                        <i class="material-icons">trending_up</i>
-                        <span>Most Played</span>
-                    </div>
+                </div>
+
+                <!-- Top 10 List -->
+                <div class="section-title">
+                    <h3>Top 10</h3>
+                </div>
+                <div class="music-list-container">
+                    <ul id="music-list-ul">
+                        <!-- Top 10 songs injected here -->
+                    </ul>
                 </div>
 
                 <!-- Featured Albums -->
@@ -122,24 +150,45 @@
                         <!-- Featured albums will be injected here -->
                     </div>
                 </div>
+            </section>
 
-                <!-- Featured Artists -->
-                <div class="section-title">
-                    <h3>Featured Artists</h3>
+            <!-- Library View (New) -->
+            <section id="library-view" class="view">
+                <h2>Your Library</h2>
+                <div class="library-tabs">
+                    <button class="lib-tab active" data-lib-tab="playlists">Playlists</button>
+                    <button class="lib-tab" data-lib-tab="liked">Liked Songs</button>
+                    <button class="lib-tab" data-lib-tab="artists">Artists</button>
+                    <button class="lib-tab" data-lib-tab="albums">Albums</button>
                 </div>
-                <div class="featured-container">
-                    <div class="featured-artists" id="featured-artists">
-                        <!-- Featured artists will be injected here -->
+
+                <div class="library-content">
+                    <!-- Playlists Tab -->
+                    <div class="lib-panel active" id="lib-playlists">
+                        <div class="playlists-header">
+                            <button id="create-playlist-btn" class="create-playlist-btn">
+                                <i class="material-icons">add</i> Create Playlist
+                            </button>
+                        </div>
+                        <div class="playlists-grid" id="playlists-grid"></div>
                     </div>
-                </div>
 
-                <!-- Trending Songs -->
-                <div class="section-title">
-                    <h3>Trending Now</h3>
-                </div>
-                <div class="music-list-container">
-                    <!-- Music items will be injected here -->
-                    <ul id="music-list-ul"></ul>
+                    <!-- Liked Songs Tab -->
+                    <div class="lib-panel" id="lib-liked">
+                        <div class="music-list-container">
+                            <ul id="liked-list-ul"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Artists Tab -->
+                    <div class="lib-panel" id="lib-artists">
+                        <div class="artist-grid" id="artist-grid"></div>
+                    </div>
+
+                    <!-- Albums Tab -->
+                    <div class="lib-panel" id="lib-albums">
+                        <div class="album-grid" id="album-grid"></div>
+                    </div>
                 </div>
             </section>
 
@@ -154,98 +203,65 @@
                 </div>
             </section>
 
-            <!-- Artists View -->
-            <section id="artists-view" class="view">
-                <h2>Your Artists</h2>
-                <div class="artist-grid" id="artist-grid">
-                    <!-- Artists injected here -->
-                </div>
-            </section>
-
             <!-- Artist Details View (Hidden by default) -->
             <section id="artist-details-view" class="view">
-                <div class="artist-header">
-                    <div class="artist-header-top">
+                <div class="artist-header large-header">
+                    <div class="header-bg"></div>
+                    <div class="artist-header-content">
                         <i class="material-icons back-btn" id="artist-back">arrow_back</i>
                         <img src="" alt="" id="ad-img">
-                        <button id="ad-play-all" class="play-all-pill">
-                            <i class="material-icons">play_arrow</i> Play All
-                        </button>
-                    </div>
-                    <div class="artist-header-text">
-                        <h2 id="ad-name">Artist Name</h2>
+                        <div class="header-info">
+                            <h2 id="ad-name">Artist Name</h2>
+                            <div class="header-actions">
+                                <button id="ad-play-all" class="play-all-pill">
+                                    <i class="material-icons">play_arrow</i> Play
+                                </button>
+                                <button id="ad-add-all-queue" class="icon-btn" title="Add to Queue">
+                                    <i class="material-icons">queue_music</i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="artist-songs-list">
                     <ul id="artist-songs-ul"></ul>
                 </div>
-                <div class="artist-queue-actions">
-                    <button id="ad-add-all-queue" class="small-btn">Add All to Queue</button>
-                    <button id="ad-clear-artist-queue" class="small-btn">Remove Artist from Queue</button>
-                </div>
-            </section>
-
-            <!-- Albums View -->
-            <section id="albums-view" class="view">
-                <h2>Your Albums</h2>
-                <div class="album-grid" id="album-grid">
-                    <!-- Albums injected here -->
-                </div>
             </section>
 
             <!-- Album Details View (Hidden by default) -->
             <section id="album-details-view" class="view">
-                <div class="album-header">
-                    <div class="album-header-top">
+                <div class="album-header large-header">
+                    <div class="header-bg"></div>
+                    <div class="album-header-content">
                         <i class="material-icons back-btn" id="album-back">arrow_back</i>
                         <img src="" alt="" id="album-detail-img">
-                        <button id="album-play-all" class="play-all-pill">
-                            <i class="material-icons">play_arrow</i> Play All
-                        </button>
-                    </div>
-                    <div class="album-header-text">
-                        <h2 id="album-detail-name">Album Name</h2>
-                        <p id="album-detail-artist">Artist Name</p>
+                        <div class="header-info">
+                            <p class="subtitle">Album</p>
+                            <h2 id="album-detail-name">Album Name</h2>
+                            <p id="album-detail-artist">Artist Name</p>
+                            <div class="header-actions">
+                                <button id="album-play-all" class="play-all-pill">
+                                    <i class="material-icons">play_arrow</i> Play
+                                </button>
+                                <button id="album-add-all-queue" class="icon-btn" title="Add to Queue">
+                                    <i class="material-icons">queue_music</i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="album-songs-list">
                     <ul id="album-songs-ul"></ul>
                 </div>
-                <div class="album-queue-actions">
-                    <button id="album-add-all-queue" class="small-btn">Add All to Queue</button>
-                    <button id="album-clear-queue" class="small-btn">Remove Album from Queue</button>
-                </div>
-            </section>
-
-            <!-- Liked Songs View -->
-            <section id="liked-view" class="view">
-                <h2>Liked Songs</h2>
-                <div class="music-list-container">
-                    <ul id="liked-list-ul"></ul>
-                </div>
-            </section>
-
-            <!-- Playlists View -->
-            <section id="playlists-view" class="view">
-                <div class="playlists-header">
-                    <h2>Your Playlists</h2>
-                    <button id="create-playlist-btn" class="create-playlist-btn">
-                        <i class="material-icons">add</i> Create Playlist
-                    </button>
-                </div>
-                <div class="playlists-grid" id="playlists-grid">
-                    <!-- Playlists will be injected here -->
-                </div>
             </section>
 
             <!-- Playlist Details View -->
             <section id="playlist-details-view" class="view">
+                <!-- Keep existing playlist details structure but align with new header style if needed later -->
                 <div class="playlist-header">
                     <div class="playlist-header-top">
                         <i class="material-icons back-btn" id="playlist-back">arrow_back</i>
-                        <div class="playlist-artwork" id="playlist-artwork">
-                            <!-- 4-image grid or single image -->
-                        </div>
+                        <div class="playlist-artwork" id="playlist-artwork"></div>
                         <button id="playlist-play-all" class="play-all-pill">
                             <i class="material-icons">play_arrow</i> Play All
                         </button>
@@ -274,12 +290,29 @@
                 <div class="settings-container">
                     <!-- Tabs -->
                     <div class="settings-tabs">
+                        <!-- Removed Profile Tab -->
                         <button class="settings-tab active" data-settings-tab="themes">Themes</button>
                         <button class="settings-tab" data-settings-tab="audio">Audio & EQ</button>
                         <button class="settings-tab" data-settings-tab="playback">Playback</button>
                         <button class="settings-tab" data-settings-tab="stats">Statistics</button>
                         <button class="settings-tab" data-settings-tab="shortcuts">Shortcuts</button>
                     </div>
+
+                    <!-- Removed Profile Panel from here, logic moved to sidebar/modal if needed, 
+                         but user asked to move it out. We will keep profile edit in a modal or separate view if requested, 
+                         but for now let's keep the edit fields in a "Profile" settings tab? 
+                         User said "get the profile out of setting & add it to side bar". 
+                         Usually means access to profile. Editing might still be in settings or a modal.
+                         Let's keep a simplified Profile Edit in settings or separate.
+                         Wait, user said "Profile out of setting". 
+                         I will keep the "Profile Panel" content but maybe accessible via clicking the sidebar profile?
+                         For now, let's keep the Settings structure cleaner without the main Profile tab causing confusion.
+                         I will move the Profile Edit logic to a modal later or keep it as a hidden panel triggered by sidebar.
+                         Actually, let's keep the 'Profile' tab in settings for EDITING, but the main access is sidebar.
+                         User said "get the profile out of setting", implies removing it.
+                         I'll remove the Profile tab from Settings and make clicking the Sidebar Profile open a Profile View or Modal.
+                         For this step, I'll stick to the plan: Move Profile to sidebar.
+                    -->
 
                     <!-- Themes Panel -->
                     <div class="settings-panel active" id="themes-panel">
@@ -724,6 +757,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
+    <script src="auth-manager.js"></script>
     <script src="db-manager.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.min.js"></script>
     <script src="music-list.js"></script>

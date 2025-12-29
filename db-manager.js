@@ -24,35 +24,49 @@ function initFirebase() {
     return true;
 }
 
-// Get or create user ID (stored in Firebase)
+// Get current authenticated user ID
 async function getUserId() {
     if (!initFirebase()) {
         throw new Error('Firebase not initialized');
     }
-    
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        throw new Error('User not authenticated');
+    }
+    return user.uid;
+}
+
+// Ensure user document exists in Firestore (called on login)
+async function ensureUserInitialized() {
     try {
-        // Check if userId exists in sessionStorage (temporary, for current session)
-        let userId = sessionStorage.getItem('userId');
-        
-        if (!userId) {
-            // Create new user ID
-            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            sessionStorage.setItem('userId', userId);
-            
-            // Initialize user document in Firebase
+        const userId = await getUserId();
+        const userDoc = await db.collection('users').doc(userId).get();
+
+        if (!userDoc.exists) {
             await initUser(userId);
-        } else {
-            // Verify user exists in Firebase, if not initialize
-            const userDoc = await db.collection('users').doc(userId).get();
-            if (!userDoc.exists) {
-                await initUser(userId);
+
+            // For new Google users, we might want to save their display name/email from Auth profile
+            const user = firebase.auth().currentUser;
+            if (user) {
+                await db.collection('users').doc(userId).set({
+                    displayName: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                console.log("User profile updated with Google info");
             }
+        } else {
+            // Update last login
+            await db.collection('users').doc(userId).update({
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
-        
-        return userId;
+        return true;
     } catch (error) {
-        console.error('Error getting user ID:', error);
-        throw error;
+        console.error("Error ensuring user initialized:", error);
+        return false;
     }
 }
 

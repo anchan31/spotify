@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
 
 * {
     margin: 0;
@@ -217,16 +217,55 @@ body {
     padding: 20px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
 }
 
-.sidebar .logo {
+/* Sidebar Profile */
+.profile-summary {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 40px;
-    font-size: 20px;
+    gap: 12px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.profile-summary img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-summary .profile-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-summary #sidebar-profile-name {
     font-weight: 600;
+    font-size: 16px;
+    color: var(--text-dark);
+}
+
+.profile-summary .status-text {
+    font-size: 12px;
     color: var(--highlight);
+    font-weight: 500;
+}
+
+/* Nav Links */
+.nav-links {
+    flex: 1;
+    overflow-y: auto;
+    /* Hide scrollbar for cleaner look */
+    scrollbar-width: none;
+}
+
+.nav-links::-webkit-scrollbar {
+    display: none;
 }
 
 .sidebar ul {
@@ -238,11 +277,12 @@ body {
     align-items: center;
     gap: 15px;
     padding: 12px 15px;
-    border-radius: 10px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     color: var(--text-light);
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-weight: 500;
 }
 
 .sidebar li:hover,
@@ -254,6 +294,34 @@ body {
 
 .sidebar li i {
     font-size: 24px;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    padding-top: 20px;
+    border-top: 1px solid var(--glass-border);
+}
+
+#sidebar-sign-out-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    border: none;
+    background: rgba(255, 77, 109, 0.1);
+    color: #ff4d6d;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+#sidebar-sign-out-btn:hover {
+    background: #ff4d6d;
+    color: white;
+    box-shadow: 0 5px 15px rgba(255, 77, 109, 0.3);
 }
 
 /* Main Content */
@@ -353,7 +421,7 @@ body {
 }
 
 .material-icons.heart:hover {
-    background: rgba(0,0,0,0.04);
+    background: rgba(0, 0, 0, 0.04);
     transform: scale(1.05);
 }
 
@@ -1682,36 +1750,36 @@ body.dark-mode .preset-btn.active {
     #audio-visualizer {
         display: none !important;
     }
-    
+
     /* Hide rating controls on mobile */
     .rating-controls {
         display: none !important;
     }
-    
+
     /* Settings improvements */
     .settings-container {
         padding: 0 10px;
     }
-    
+
     .settings-panel {
         padding: 10px 0;
     }
-    
+
     /* Quick access improvements */
     .quick-access {
         margin-bottom: 20px;
     }
-    
+
     /* Statistics improvements */
     .stats-panel {
         padding: 10px 0;
     }
-    
+
     /* Shortcuts improvements */
     .shortcuts-panel {
         padding: 10px 0;
     }
-    
+
     /* Playback panel improvements */
     .playback-panel {
         padding: 10px 0;
@@ -1743,6 +1811,35 @@ body.dark-mode .preset-btn.active {
 
     .search-header input {
         font-size: 16px;
+    }
+
+    /* Fix for new sidebar elements */
+    .sidebar .profile-summary,
+    .sidebar .sidebar-footer {
+        display: none !important;
+    }
+
+    .nav-links {
+        width: 100%;
+        overflow: visible;
+    }
+
+    /* Fix large header margins */
+    .large-header {
+        margin: -15px -15px 20px -15px;
+        padding: 20px;
+        height: 250px;
+        border-radius: 0 0 20px 20px;
+    }
+
+    .large-header h2 {
+        font-size: 32px;
+    }
+
+    .artist-header-content img,
+    .album-header-content img {
+        width: 140px;
+        height: 140px;
     }
 }
 
@@ -2146,32 +2243,32 @@ body.dark-mode .preset-btn.active {
         width: 100vw;
         right: -100vw;
     }
-    
+
     .queue-header {
         padding: 15px;
     }
-    
+
     .queue-header h3 {
         font-size: 18px;
     }
-    
+
     .queue-content {
         padding: 8px;
     }
-    
+
     .queue-item {
         padding: 10px;
     }
-    
+
     .queue-item img {
         width: 40px;
         height: 40px;
     }
-    
+
     .queue-item-info .name {
         font-size: 13px;
     }
-    
+
     .queue-item-info .artist {
         font-size: 11px;
     }
@@ -2194,16 +2291,16 @@ body.dark-mode .preset-btn.active {
         gap: 8px;
         flex-wrap: wrap;
     }
-    
+
     .fs-controls i {
         font-size: 24px;
     }
-    
+
     .fs-play-pause {
         width: 60px;
         height: 60px;
     }
-    
+
     .fs-play-pause i {
         font-size: 30px;
     }
@@ -2212,7 +2309,7 @@ body.dark-mode .preset-btn.active {
         font-size: 20px;
         white-space: normal;
     }
-    
+
     .fs-details p {
         font-size: 16px;
     }
@@ -2226,19 +2323,19 @@ body.dark-mode .preset-btn.active {
         text-transform: uppercase;
         letter-spacing: 1px;
     }
-    
+
     .fs-header {
         padding: 0 5px;
     }
-    
+
     .fs-header i {
         font-size: 28px;
     }
-    
+
     .fs-progress-area {
         margin-bottom: 20px;
     }
-    
+
     .fs-timer {
         font-size: 12px;
     }
@@ -2905,7 +3002,7 @@ body.dark-mode .rating-controls {
     position: fixed;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     padding: 8px 0;
     z-index: 10000;
     min-width: 200px;
@@ -2960,84 +3057,85 @@ body.dark-mode .playlist-menu-item:active {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
-    
+
     .quick-access-item {
         padding: 15px;
     }
-    
+
     .quick-access-item i {
         font-size: 24px;
     }
-    
+
     .quick-access-item span {
         font-size: 12px;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 15px;
     }
-    
+
     .stat-card {
         padding: 15px;
     }
-    
+
     .stat-icon {
         font-size: 24px;
     }
-    
+
     .stat-value {
         font-size: 22px;
     }
-    
+
     .stat-label {
         font-size: 12px;
     }
-    
+
     .shortcut-item {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
         padding: 12px;
     }
-    
+
     .shortcut-keys {
         width: 100%;
         justify-content: flex-start;
     }
-    
+
     .shortcut-desc {
         font-size: 13px;
     }
-    
+
     .rating-controls {
-        display: none; /* Hide on mobile to save space */
+        display: none;
+        /* Hide on mobile to save space */
     }
-    
+
     .setting-item {
         flex-direction: column;
         align-items: flex-start;
         padding: 12px 0;
     }
-    
+
     .setting-item input[type="range"],
     .setting-item select {
         width: 100%;
         margin: 10px 0 0 0;
     }
-    
+
     .setting-info {
         width: 100%;
     }
-    
+
     .setting-info h3 {
         font-size: 16px;
     }
-    
+
     .setting-info p {
         font-size: 12px;
     }
-    
+
     #crossfade-value,
     #speed-value,
     #sleep-timer-status {
@@ -3045,234 +3143,234 @@ body.dark-mode .playlist-menu-item:active {
         margin-top: 5px;
         display: block;
     }
-    
+
     .eq-container {
         padding: 15px;
     }
-    
+
     .eq-sliders {
         gap: 5px;
         height: 150px;
     }
-    
+
     .eq-label {
         font-size: 10px;
     }
-    
+
     .eq-presets {
         gap: 8px;
     }
-    
+
     .preset-btn {
         padding: 6px 12px;
         font-size: 12px;
     }
-    
+
     .playlists-header {
         flex-direction: column;
         gap: 15px;
         align-items: stretch;
     }
-    
+
     .create-playlist-btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .playlists-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 15px;
     }
-    
+
     .playlist-header-top {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .playlist-artwork {
         width: 100%;
         max-width: 200px;
         margin: 0 auto;
     }
-    
+
     .playlist-actions {
         flex-direction: column;
         width: 100%;
     }
-    
+
     .playlist-actions .small-btn {
         width: 100%;
         margin: 5px 0;
     }
-    
+
     .queue-footer {
         flex-direction: column;
     }
-    
+
     .queue-action-btn,
     .clear-queue-btn {
         width: 100%;
     }
-    
+
     .queue-item-actions {
         flex-direction: column;
         gap: 3px;
     }
-    
+
     .queue-move {
         font-size: 16px;
     }
-    
+
     #search-filters {
         flex-direction: column;
     }
-    
+
     #search-filters select {
         width: 100%;
     }
-    
+
     .settings-tabs {
         gap: 5px;
     }
-    
+
     .settings-tab {
         padding: 8px 15px;
         font-size: 14px;
     }
-    
+
     .stats-panel h3 {
         font-size: 18px;
         margin-top: 20px;
     }
-    
+
     .playlist-menu {
         max-width: calc(100vw - 20px);
         left: 10px !important;
         right: 10px;
         transform: none !important;
     }
-    
+
     /* Better form controls for touch */
     input[type="range"] {
         min-height: 44px;
         padding: 10px 0;
     }
-    
+
     select {
         min-height: 44px;
         padding: 10px 12px;
     }
-    
+
     /* Better touch targets */
     .switch {
         min-width: 60px;
         min-height: 34px;
     }
-    
+
     /* Better spacing */
     .eq-container {
         margin-top: 20px;
     }
-    
+
     .eq-container h3 {
         font-size: 18px;
         margin-bottom: 15px;
     }
-    
+
     /* Better stat cards */
     .stat-card {
         min-height: 100px;
     }
-    
+
     /* Better quick access */
     .quick-access-item {
         min-height: 80px;
     }
-    
+
     /* Better shortcuts */
     .shortcut-item {
         min-height: 60px;
     }
-    
+
     /* Better queue items */
     .queue-item {
         min-height: 70px;
     }
-    
+
     /* Better playlist cards */
     .playlist-card {
         min-height: 200px;
     }
-    
+
     /* Better search filters */
     #search-filters {
         margin-top: 15px;
     }
-    
+
     #search-filters select {
         min-height: 44px;
         padding: 10px;
     }
-    
+
     /* Better lyrics settings */
     .lyrics-settings {
         flex-direction: column;
         gap: 15px;
         align-items: stretch;
     }
-    
+
     .lyrics-settings label {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .lyrics-settings input[type="range"],
     .lyrics-settings input[type="color"] {
         width: 100%;
     }
-    
+
     /* Better header spacing */
     .header-greeting h2 {
         font-size: 24px;
     }
-    
+
     .section-title h3 {
         font-size: 18px;
     }
-    
+
     /* Better featured content */
     .featured-album,
     .featured-artist {
         min-width: 120px;
         padding: 12px;
     }
-    
+
     .featured-album img,
     .featured-artist img {
         width: 100px;
         height: 100px;
     }
-    
+
     /* Better shortcuts kbd */
     .shortcut-keys kbd {
         padding: 4px 8px;
         font-size: 11px;
     }
-    
+
     /* Better queue footer */
     .queue-footer {
         padding: 12px 15px;
     }
-    
+
     /* Better playlist header */
     .playlist-header-text h2 {
         font-size: 24px;
     }
-    
+
     .playlist-header-text p {
         font-size: 14px;
     }
-    
+
     /* Better sleep timer display */
     #sleep-timer-status {
         display: block;
@@ -3281,19 +3379,469 @@ body.dark-mode .playlist-menu-item:active {
         text-align: center;
         font-size: 11px;
     }
-    
+
     /* Better settings tabs scroll */
     .settings-tabs {
         padding-bottom: 8px;
     }
-    
+
     /* Better stats panel spacing */
     .stats-panel {
         padding: 10px 0;
     }
-    
-    /* Better playback panel */
-    .playback-panel {
+
+    .stats-panel .playback-panel {
         padding: 10px 0;
     }
+}
+
+/* Login Overlay Styles */
+#login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, var(--light-bg) 0%, #ffffff 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    transition: opacity 0.5s ease-out;
+}
+
+body.dark-mode #login-overlay {
+    background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
+}
+
+.login-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    padding: 60px 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.login-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: var(--highlight);
+}
+
+.login-logo i {
+    font-size: 80px;
+}
+
+.login-card h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: var(--text-dark);
+}
+
+.login-card p {
+    color: var(--text-light);
+    margin-bottom: 40px;
+}
+
+#google-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    padding: 12px 20px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: #555;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode #google-login-btn {
+    background: #282828;
+    border-color: #444;
+    color: white;
+}
+
+#google-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+#google-login-btn img {
+    width: 24px;
+    height: 24px;
+}
+
+/* Auth Fade Transitions */
+.fade-out {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-out forwards;
+}
+
+/* Profile Settings Styles */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.profile-header img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info-edit h3 {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.profile-info-edit p {
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-family: inherit;
+}
+
+.input-group input:focus {
+    border-color: var(--highlight);
+}
+
+.delete-btn {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.delete-btn:hover {
+    background: #ff3333;
+}
+
+.small-btn {
+    padding: 8px 15px;
+    background: var(--highlight);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* --- New UI Impl Styles --- */
+
+/* Library View Tabs */
+.library-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 15px;
+}
+
+.lib-tab {
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.lib-tab:hover {
+    color: var(--text-dark);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.lib-tab.active {
+    background: var(--highlight);
+    color: white;
+    box-shadow: 0 4px 10px var(--accent-a30);
+}
+
+.lib-panel {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.lib-panel.active {
+    display: block;
+}
+
+/* Horizontal Trending Scroll */
+.trending-container {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.trending-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 10px 5px 20px 5px;
+    /* Bottom padding for shadow */
+    scroll-behavior: smooth;
+
+    /* Hide scrollbar */
+    scrollbar-width: none;
+}
+
+.trending-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.trending-card {
+    min-width: 160px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: 0.3s;
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.trending-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+.trending-card:hover img {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.trending-card h4 {
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.trending-card p {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+/* Circular Artists in Home */
+.circular-artists {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding-bottom: 15px;
+    scrollbar-width: none;
+}
+
+.circular-artists::-webkit-scrollbar {
+    display: none;
+}
+
+.circular-artists .artist-card {
+    min-width: 120px;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+}
+
+.circular-artists .artist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: none;
+}
+
+/* Large Headers for Details */
+.large-header {
+    position: relative;
+    height: 350px;
+    margin: -20px -40px 30px -40px;
+    /* Negative margin to span full width */
+    display: flex;
+    align-items: flex-end;
+    padding: 40px;
+    overflow: hidden;
+    color: white;
+    border-radius: 0 0 30px 30px;
+}
+
+.header-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, var(--highlight), var(--secondary));
+    opacity: 0.9;
+    z-index: 0;
+}
+
+.artist-header-content,
+.album-header-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 30px;
+    width: 100%;
+}
+
+.artist-header-content img,
+.album-header-content img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    /* Artist circle */
+    object-fit: cover;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 4px solid rgba(255, 255, 255, 0.2);
+}
+
+.album-header-content img {
+    border-radius: 20px;
+    /* Album rounded square */
+}
+
+.header-info {
+    flex: 1;
+    color: white;
+}
+
+.header-info .subtitle {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.header-info h2 {
+    font-size: 50px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    line-height: 1.1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.header-info p {
+    font-size: 18px;
+    opacity: 0.9;
+    margin-bottom: 20px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.play-all-pill {
+    padding: 12px 30px;
+    background: white;
+    color: var(--text-dark);
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.play-all-pill:hover {
+    transform: scale(1.05);
+    background: #f0f0f0;
+}
+
+.icon-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.icon-btn:hover {
+    background: white;
+    color: var(--highlight);
+}
+
+/* UL Spacing Fixes */
+.music-list-container li {
+    margin-bottom: 10px;
+    padding: 12px 20px;
+}
+
+/* Back Button in Header */
+.large-header .back-btn {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    color: white;
+    font-size: 32px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.large-header .back-btn:hover {
+    background: white;
+    color: var(--highlight);
 }
