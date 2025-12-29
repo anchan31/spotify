@@ -55,10 +55,21 @@
             <h1>Welcome Back</h1>
             <p>Sign in to access your music library</p>
 
+            <div id="email-login-form">
+                <input type="email" id="login-email" placeholder="Email" class="login-input">
+                <input type="password" id="login-password" placeholder="Password" class="login-input">
+                <button id="email-login-btn" onclick="signInWithEmail()">Log In</button>
+                <div class="divider"><span>OR</span></div>
+            </div>
+
             <button id="google-login-btn" onclick="signInWithGoogle()">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
                 <span>Sign in with Google</span>
             </button>
+            <p style="margin-top: 15px; font-size: 0.9em;">
+                Don't have an account? <span id="toggle-auth-mode" style="color: var(--highlight); cursor: pointer;"
+                    onclick="toggleAuthMode()">Sign Up</span>
+            </p>
             <p id="login-error-msg" style="color: red; display: none; margin-top: 10px; font-size: 0.9em;"></p>
         </div>
     </div>
@@ -66,14 +77,18 @@
     <div class="app-container" style="display: none;">
         <!-- Sidebar -->
         <nav class="sidebar">
-            <div class="profile-summary" id="sidebar-profile">
-                <img src="images/music-placeholder.webp" alt="Profile" id="sidebar-profile-img">
-                <div class="profile-text">
-                    <span id="sidebar-profile-name">User</span>
-                    <span class="status-text">Online</span>
+            <!-- Sidebar Header: Hidden on mobile bottom-nav -->
+            <div class="sidebar-header">
+                <div class="profile-summary" id="sidebar-profile">
+                    <img src="images/music-placeholder.webp" alt="Profile" id="sidebar-profile-img">
+                    <div class="profile-text">
+                        <span id="sidebar-profile-name">User</span>
+                        <span class="status-text">Online</span>
+                    </div>
                 </div>
             </div>
 
+            <!-- Main Navigation Links: Becomes bottom-nav on mobile -->
             <div class="nav-links">
                 <ul>
                     <li class="active" data-view="home">
@@ -86,15 +101,16 @@
                     </li>
                     <li data-view="library">
                         <i class="material-icons">library_music</i>
-                        <span>Your Library</span>
+                        <span>Library</span>
                     </li>
-                    <li data-view="settings">
+                    <li data-view="settings" class="sidebar-only">
                         <i class="material-icons">settings</i>
                         <span>Settings</span>
                     </li>
                 </ul>
             </div>
 
+            <!-- Sidebar Footer: Hidden on mobile or moved -->
             <div class="sidebar-footer">
                 <button id="sidebar-sign-out-btn">
                     <i class="material-icons">logout</i>
@@ -206,7 +222,7 @@
             <!-- Artist Details View (Hidden by default) -->
             <section id="artist-details-view" class="view">
                 <div class="artist-header large-header">
-                    <div class="header-bg"></div>
+                    <div class="header-bg" id="artist-header-bg"></div>
                     <div class="artist-header-content">
                         <i class="material-icons back-btn" id="artist-back">arrow_back</i>
                         <img src="" alt="" id="ad-img">
@@ -231,7 +247,7 @@
             <!-- Album Details View (Hidden by default) -->
             <section id="album-details-view" class="view">
                 <div class="album-header large-header">
-                    <div class="header-bg"></div>
+                    <div class="header-bg" id="album-header-bg"></div>
                     <div class="album-header-content">
                         <i class="material-icons back-btn" id="album-back">arrow_back</i>
                         <img src="" alt="" id="album-detail-img">
@@ -257,26 +273,27 @@
 
             <!-- Playlist Details View -->
             <section id="playlist-details-view" class="view">
-                <!-- Keep existing playlist details structure but align with new header style if needed later -->
-                <div class="playlist-header">
-                    <div class="playlist-header-top">
+                <div class="playlist-header large-header">
+                    <div class="header-bg" id="playlist-header-bg"></div>
+                    <div class="playlist-header-content">
                         <i class="material-icons back-btn" id="playlist-back">arrow_back</i>
-                        <div class="playlist-artwork" id="playlist-artwork"></div>
-                        <button id="playlist-play-all" class="play-all-pill">
-                            <i class="material-icons">play_arrow</i> Play All
-                        </button>
-                    </div>
-                    <div class="playlist-header-text">
-                        <h2 id="playlist-detail-name">Playlist Name</h2>
-                        <p id="playlist-detail-info">0 songs</p>
-                    </div>
-                    <div class="playlist-actions">
-                        <button id="playlist-edit-btn" class="small-btn">
-                            <i class="material-icons">edit</i> Edit
-                        </button>
-                        <button id="playlist-delete-btn" class="small-btn delete-btn">
-                            <i class="material-icons">delete</i> Delete
-                        </button>
+                        <div class="playlist-artwork large-artwork" id="playlist-artwork"></div>
+                        <div class="header-info">
+                            <p class="subtitle">Playlist</p>
+                            <h2 id="playlist-detail-name">Playlist Name</h2>
+                            <p id="playlist-detail-info">0 songs</p>
+                            <div class="header-actions">
+                                <button id="playlist-play-all" class="play-all-pill">
+                                    <i class="material-icons">play_arrow</i> Play All
+                                </button>
+                                <button id="playlist-edit-btn" class="icon-btn" title="Edit Name">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button id="playlist-delete-btn" class="icon-btn delete-btn" title="Delete Playlist">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="playlist-songs-list">
@@ -749,6 +766,18 @@
         </div>
     </div>
 
+    <!-- Playlist Creation/Edit Modal -->
+    <div id="playlist-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <h2 id="playlist-modal-title">Create Playlist</h2>
+            <input type="text" id="playlist-modal-input" placeholder="Playlist Name" class="modal-input">
+            <div class="modal-actions">
+                <button id="playlist-modal-cancel" class="modal-btn secondary">Cancel</button>
+                <button id="playlist-modal-save" class="modal-btn primary">Save</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Audio Elements (Main and Crossfade) -->
     <audio id="main-audio" src="" crossorigin="anonymous"></audio>
     <audio id="crossfade-audio" src="" crossorigin="anonymous"></audio>
@@ -759,7 +788,8 @@
     <script src="firebase-config.js"></script>
     <script src="auth-manager.js"></script>
     <script src="db-manager.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.min.js"></script>
+    <!-- External Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.min.js"></script>
     <script src="music-list.js"></script>
     <script src="lyrics.js"></script>
     <script src="visualizer.js"></script>

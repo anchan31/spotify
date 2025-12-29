@@ -136,5 +136,99 @@ function handleUserSignedOut() {
 // but firebase-config is before this, and firebase libs are before this.
 // So safe to call:
 
+// Email/Password Auth State
+let isLoginMode = true;
+
+function toggleAuthMode() {
+    isLoginMode = !isLoginMode;
+
+    const title = document.querySelector('.login-card h1');
+    const subtitle = document.querySelector('.login-card p');
+    const submitBtn = document.getElementById('email-login-btn');
+    const toggleBtn = document.getElementById('toggle-auth-mode');
+    const toggleText = toggleBtn.parentElement; // The <p> containing the span
+    const errorMsg = document.getElementById('login-error-msg');
+
+    if (errorMsg) errorMsg.style.display = 'none';
+
+    if (isLoginMode) {
+        title.textContent = 'Welcome Back';
+        subtitle.textContent = 'Sign in to access your music library';
+        submitBtn.textContent = 'Log In';
+        toggleBtn.textContent = 'Sign Up';
+        toggleText.childNodes[0].nodeValue = "Don't have an account? ";
+    } else {
+        title.textContent = 'Create Account';
+        subtitle.textContent = 'Sign up to start listening';
+        submitBtn.textContent = 'Sign Up';
+        toggleBtn.textContent = 'Log In';
+        toggleText.childNodes[0].nodeValue = "Already have an account? ";
+    }
+}
+
+function signInWithEmail() {
+    if (!auth) initAuth();
+
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const errorDisplay = document.getElementById('login-error-msg');
+    const submitBtn = document.getElementById('email-login-btn');
+
+    if (!email || !password) {
+        if (errorDisplay) {
+            errorDisplay.textContent = 'Please enter both email and password.';
+            errorDisplay.style.display = 'block';
+        }
+        return;
+    }
+
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = isLoginMode ? 'Logging in...' : 'Signing up...';
+    submitBtn.disabled = true;
+
+    if (isLoginMode) {
+        // Log In
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                console.log("Email Sign-In Successful");
+                // onAuthStateChanged will handle the rest
+            })
+            .catch((error) => {
+                console.error("Email Sign-In Error:", error);
+                handleAuthError(error, submitBtn, originalText);
+            });
+    } else {
+        // Sign Up
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                console.log("Email Sign-Up Successful");
+                // onAuthStateChanged will handle the rest
+            })
+            .catch((error) => {
+                console.error("Email Sign-Up Error:", error);
+                handleAuthError(error, submitBtn, originalText);
+            });
+    }
+}
+
+function handleAuthError(error, btn, originalText) {
+    const errorDisplay = document.getElementById('login-error-msg');
+    if (btn) {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+
+    if (errorDisplay) {
+        let msg = error.message;
+        if (error.code === 'auth/wrong-password') msg = 'Incorrect password.';
+        if (error.code === 'auth/user-not-found') msg = 'No account found with this email.';
+        if (error.code === 'auth/email-already-in-use') msg = 'Email already in use.';
+        if (error.code === 'auth/weak-password') msg = 'Password should be at least 6 characters.';
+
+        errorDisplay.textContent = msg;
+        errorDisplay.style.display = 'block';
+    }
+}
+
 // Initialize Auth immediately since scripts are at end of body
 initAuth();
