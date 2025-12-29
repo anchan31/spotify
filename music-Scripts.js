@@ -311,7 +311,7 @@ function loadMusicList(list, container) {
         rowDiv.className = 'row';
 
         const imgEl = document.createElement('img');
-        attemptImageFormats(imgEl, `images/${song.img}`, `images/music-placeholder.jpg`);
+        attemptImageFormats(imgEl, `images/${song.img}`, `images/music-placeholder.webp`);
 
         const infoDiv = document.createElement('div');
         infoDiv.className = 'info';
@@ -437,7 +437,7 @@ function loadArtists() {
             let div = document.createElement("div");
             div.classList.add("artist-card");
             const imgEl = document.createElement('img');
-            attemptImageFormats(imgEl, artistPaths, `images/music-placeholder.jpg`);
+            attemptImageFormats(imgEl, artistPaths, `images/music-placeholder.webp`);
             const h3 = document.createElement('h3');
             h3.textContent = artist;
             div.appendChild(imgEl);
@@ -452,7 +452,7 @@ function loadArtists() {
             div.classList.add("artist-card");
             // div.style.minWidth = "120px"; // Ensure size
             const imgEl = document.createElement('img');
-            attemptImageFormats(imgEl, artistPaths, `images/music-placeholder.jpg`);
+            attemptImageFormats(imgEl, artistPaths, `images/music-placeholder.webp`);
             // imgEl.style.width = "100px";
             // imgEl.style.height = "100px";
             const h3 = document.createElement('h3');
@@ -478,11 +478,21 @@ function renderTrendingSongs() {
         let originalIndex = allMusic.indexOf(song) + 1;
         const div = document.createElement('div');
         div.className = 'trending-card';
-        div.innerHTML = `
-            <img src="images/${song.img}.jpg" onerror="this.src='images/music-placeholder.jpg'">
-            <h4>${song.name}</h4>
-            <p>${song.artist}</p>
-        `;
+
+        // Create elements manually to use attemptImageFormats
+        const img = document.createElement('img');
+        attemptImageFormats(img, `images/${song.img}`, 'images/music-placeholder.webp');
+
+        const h4 = document.createElement('h4');
+        h4.innerText = song.name;
+
+        const p = document.createElement('p');
+        p.innerText = song.artist;
+
+        div.appendChild(img);
+        div.appendChild(h4);
+        div.appendChild(p);
+
         div.onclick = () => playSongFromList(originalIndex);
         container.appendChild(div);
     });
@@ -524,7 +534,7 @@ function loadArtistDetails(artistName, songs) {
     artistPaths.push(`images/artists/${artistName}`);
     artistPaths.push(`images/${songs[0].img}`);
 
-    if (adImg) attemptImageFormats(adImg, artistPaths, `images/music-placeholder.jpg`);
+    if (adImg) attemptImageFormats(adImg, artistPaths, `images/music-placeholder.webp`);
 
     // Populate list
     artistSongsUl.innerHTML = "";
@@ -635,27 +645,15 @@ function loadMusic(indexNumb) {
     // Update Mini Player
     miniName.innerText = song.name;
     miniArtist.innerText = song.artist;
-    attemptImageFormats(miniImg, `images/${song.img}`, `images/music-placeholder.jpg`);
+    attemptImageFormats(miniImg, `images/${song.img}`, `images/music-placeholder.webp`);
 
     // Update FS Player
     fsName.innerText = song.name;
     fsArtist.innerText = song.artist;
-    attemptImageFormats(fsImg, `images/${song.img}`, `images/music-placeholder.jpg`);
+    attemptImageFormats(fsImg, `images/${song.img}`, `images/music-placeholder.webp`);
 
 
-    // Update Media Session Metadata
-    if ("mediaSession" in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: song.name,
-            artist: song.artist,
-            album: song.album || "",
-            artwork: [
-                { src: `images/${song.img}.jpg`, sizes: "512x512", type: "image/jpeg" },
-                { src: `images/${song.img}.webp`, sizes: "512x512", type: "image/webp" },
-                { src: `images/artists/${song.artistImg || 'placeholder'}.jpg`, sizes: "512x512", type: "image/jpeg" }
-            ]
-        });
-    }
+    // Media Session Metadata is now updated in miniImg.onload to ensure correct image source is used.
 
     // Update active class in list
     const allLi = musicListUl.querySelectorAll("li");
@@ -667,13 +665,30 @@ function loadMusic(indexNumb) {
     loadLyrics(indexNumb);
 
     // Background Color
+    // Background Color & Media Session Update
+    // We bind onload before calling attemptImageFormats (effectively, though here it's after, but effectively async)
+    // Actually, to be safe, we should probably set onload before src, but attemptImageFormats handles src setting.
+    // Since attemptImageFormats is called above (line 648), we might miss it if it's instant (cached).
+    // Better practice: Defining onload is idempotent if we assume the image eventually loads.
+
     miniImg.onload = () => {
+        // Update Media Session Metadata with the actual loaded image
+        if ("mediaSession" in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song.name,
+                artist: song.artist,
+                album: song.album || "",
+                artwork: [
+                    { src: miniImg.src, sizes: "512x512", type: "image/png" }, // Using the resolved src
+                    // Fallback to placeholder just in case? No, miniImg.src is what loaded.
+                ]
+            });
+        }
+
         if (colorThief) {
             try {
                 const color = colorThief.getColor(miniImg);
                 // document.body.style.background = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-                // Keep the light gradient but maybe hint at the color?
-                // Let's stick to the CSS gradient for the requested theme.
             } catch (e) { }
         }
     };
@@ -1341,7 +1356,7 @@ function loadAlbums() {
         albumPaths.push(`images/albums/${album.name}`);
         albumPaths.push(`images/${album.img}`);
 
-        attemptImageFormats(imgEl, albumPaths, `images/music-placeholder.jpg`);
+        attemptImageFormats(imgEl, albumPaths, `images/music-placeholder.webp`);
 
         div.onclick = () => {
             loadAlbumDetails(album);
@@ -1368,7 +1383,7 @@ function loadAlbumDetails(album) {
     albumImagePaths.push(`images/albums/${albumSlug}`);
     albumImagePaths.push(`images/albums/${album.name}`);
     albumImagePaths.push(`images/${album.img}`);
-    attemptImageFormats(albumDetailImg, albumImagePaths, `images/music-placeholder.jpg`);
+    attemptImageFormats(albumDetailImg, albumImagePaths, `images/music-placeholder.webp`);
 
     // Populate list
     albumSongsUl.innerHTML = "";
@@ -1481,7 +1496,7 @@ function loadFeaturedContent() {
             div.classList.add("featured-album");
             // Use image helper to prefer webp/png/jpg
             const imgEl = document.createElement('img');
-            attemptImageFormats(imgEl, `images/${album.img}`, 'images/music-placeholder.jpg');
+            attemptImageFormats(imgEl, `images/${album.img}`, 'images/music-placeholder.webp');
             const h4 = document.createElement('h4'); h4.textContent = album.name;
             const p = document.createElement('p'); p.textContent = album.artist;
             div.appendChild(imgEl); div.appendChild(h4); div.appendChild(p);
@@ -1522,7 +1537,7 @@ function loadFeaturedContent() {
                 `images/artists/${artistSlug}`,
                 `images/artists/${artistName}`,
                 `images/${firstSong.img}`
-            ], `images/music-placeholder.jpg`);
+            ], `images/music-placeholder.webp`);
             const h4 = document.createElement('h4'); h4.textContent = artistName;
             div.appendChild(imgEl); div.appendChild(h4);
             div.onclick = () => {
@@ -1900,7 +1915,7 @@ function updateQueueUI() {
         }
 
         const qImg = document.createElement('img');
-        attemptImageFormats(qImg, `images/${song.img}`, `images/music-placeholder.jpg`);
+        attemptImageFormats(qImg, `images/${song.img}`, `images/music-placeholder.webp`);
 
         const qInfo = document.createElement('div');
         qInfo.className = 'queue-item-info';
@@ -2508,7 +2523,7 @@ function updateQueueUI() {
         }
 
         const qImg = document.createElement('img');
-        attemptImageFormats(qImg, `images/${song.img}`, `images/music-placeholder.jpg`);
+        attemptImageFormats(qImg, `images/${song.img}`, `images/music-placeholder.webp`);
 
         const qInfo = document.createElement('div');
         qInfo.className = 'queue-item-info';
@@ -2774,7 +2789,7 @@ function renderPlaylists() {
         if (playlist.songs.length > 0) {
             const images = playlist.songs.slice(0, 4).map(s => {
                 const song = allMusic.find(m => m.src === s);
-                return song ? `images/${song.img}` : 'images/music-placeholder.jpg';
+                return song ? `images/${song.img}` : 'images/music-placeholder.webp';
             });
             if (images.length === 1) {
                 artworkDiv.innerHTML = `<img src="${images[0]}" alt="Playlist">`;
@@ -2831,16 +2846,16 @@ function loadPlaylistDetails(index) {
     if (playlist.songs.length > 0) {
         const images = playlist.songs.slice(0, 4).map(s => {
             const song = allMusic.find(m => m.src === s);
-            return song ? `images/${song.img}` : 'images/music-placeholder.jpg';
+            return song ? `images/${song.img}` : 'images/music-placeholder.webp';
         });
         if (images.length === 1) {
             const img = document.createElement('img');
-            attemptImageFormats(img, images[0], 'images/music-placeholder.jpg');
+            attemptImageFormats(img, images[0], 'images/music-placeholder.webp');
             playlistArtwork.appendChild(img);
         } else {
             images.forEach(imgSrc => {
                 const img = document.createElement('img');
-                attemptImageFormats(img, imgSrc, 'images/music-placeholder.jpg');
+                attemptImageFormats(img, imgSrc, 'images/music-placeholder.webp');
                 playlistArtwork.appendChild(img);
             });
         }
@@ -2864,7 +2879,7 @@ function loadPlaylistDetails(index) {
         rowDiv.className = 'row';
 
         const imgEl = document.createElement('img');
-        attemptImageFormats(imgEl, `images/${song.img}`, `images/music-placeholder.jpg`);
+        attemptImageFormats(imgEl, `images/${song.img}`, `images/music-placeholder.webp`);
 
         const infoDiv = document.createElement('div');
         infoDiv.className = 'info';
@@ -3145,7 +3160,7 @@ function setupProfile() {
     const user = firebase.auth().currentUser;
     if (user) {
         const displayName = user.displayName || 'Friend';
-        const photoURL = user.photoURL || 'images/music-placeholder.jpg';
+        const photoURL = user.photoURL || 'images/music-placeholder.webp';
 
         if (profileName) profileName.innerText = displayName;
         if (profileEmail) profileEmail.innerText = user.email || '';
