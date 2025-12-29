@@ -191,7 +191,7 @@ function updateLyrics(time) {
 
 // Lyrics Settings
 let lyricsFontSize = 30; // Default font size
-let lyricsColor = '#bbb'; // Default color
+let lyricsColor = '#bbbbbb'; // Default color
 
 // Setup Lyrics Event Listeners
 function setupLyricsHandlers() {
@@ -207,15 +207,8 @@ function setupLyricsHandlers() {
         });
     }
     
-    // Load saved settings
-    const savedSize = localStorage.getItem('lyricsFontSize');
-    if (savedSize) {
-        lyricsFontSize = parseInt(savedSize);
-    }
-    const savedColor = localStorage.getItem('lyricsColor');
-    if (savedColor) {
-        lyricsColor = savedColor;
-    }
+    // Load saved settings from Firebase
+    loadLyricsSettingsFromDB();
     
     // Add settings controls to lyrics header
     if (lyricsOverlay) {
@@ -233,21 +226,67 @@ function setupLyricsHandlers() {
             const colorPicker = document.getElementById('lyrics-color-picker');
             
             if (sizeSlider) {
-                sizeSlider.addEventListener('input', (e) => {
+                sizeSlider.addEventListener('input', async (e) => {
                     lyricsFontSize = parseInt(e.target.value);
-                    localStorage.setItem('lyricsFontSize', lyricsFontSize);
+                    await saveLyricsSettingsToDB();
                     updateLyricsStyles();
                 });
             }
             
             if (colorPicker) {
-                colorPicker.addEventListener('input', (e) => {
+                colorPicker.addEventListener('input', async (e) => {
                     lyricsColor = e.target.value;
-                    localStorage.setItem('lyricsColor', lyricsColor);
+                    await saveLyricsSettingsToDB();
                     updateLyricsStyles();
                 });
             }
         }
+    }
+}
+
+// Load lyrics settings from Firebase
+async function loadLyricsSettingsFromDB() {
+    try {
+        // Get userId from global scope (defined in music-Scripts.js)
+        let userId = window.userId;
+        if (!userId && typeof getUserId === 'function') {
+            userId = await getUserId();
+            window.userId = userId;
+        }
+        
+        if (userId && typeof loadLyricsSettings === 'function') {
+            const settings = await loadLyricsSettings(userId);
+            if (settings.lyricsFontSize !== undefined) {
+                lyricsFontSize = parseInt(settings.lyricsFontSize);
+            }
+            if (settings.lyricsColor !== undefined) {
+                lyricsColor = settings.lyricsColor;
+            }
+        }
+    } catch (err) {
+        console.error('Error loading lyrics settings:', err);
+    }
+}
+
+// Save lyrics settings to Firebase
+async function saveLyricsSettingsToDB() {
+    try {
+        // Get userId from global scope (defined in music-Scripts.js)
+        let userId = window.userId;
+        if (!userId && typeof getUserId === 'function') {
+            userId = await getUserId();
+            window.userId = userId;
+        }
+        
+        if (userId && typeof saveLyricsSettings === 'function') {
+            const settings = {
+                lyricsFontSize: lyricsFontSize,
+                lyricsColor: lyricsColor
+            };
+            await saveLyricsSettings(userId, settings);
+        }
+    } catch (err) {
+        console.error('Error saving lyrics settings:', err);
     }
 }
 

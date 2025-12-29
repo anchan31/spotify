@@ -1,5 +1,5 @@
 // Firebase Database Manager
-// Handles syncing Favorites and Playlists with Firestore (using compat API)
+// Handles all data storage with Firestore (using compat API)
 
 // Wait for Firebase to be available
 let db = null;
@@ -24,14 +24,36 @@ function initFirebase() {
     return true;
 }
 
-// Get or create user ID (using localStorage for demo, in production use auth)
-function getUserId() {
-    let userId = localStorage.getItem('userId');
-    if (!userId) {
-        userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('userId', userId);
+// Get or create user ID (stored in Firebase)
+async function getUserId() {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
     }
-    return userId;
+    
+    try {
+        // Check if userId exists in sessionStorage (temporary, for current session)
+        let userId = sessionStorage.getItem('userId');
+        
+        if (!userId) {
+            // Create new user ID
+            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('userId', userId);
+            
+            // Initialize user document in Firebase
+            await initUser(userId);
+        } else {
+            // Verify user exists in Firebase, if not initialize
+            const userDoc = await db.collection('users').doc(userId).get();
+            if (!userDoc.exists) {
+                await initUser(userId);
+            }
+        }
+        
+        return userId;
+    } catch (error) {
+        console.error('Error getting user ID:', error);
+        throw error;
+    }
 }
 
 // Initialize user document
@@ -50,9 +72,7 @@ async function initUser(userId) {
 // Sync Favorites
 async function saveFavorites(userId, favorites) {
     if (!initFirebase()) {
-        // Fallback to localStorage if Firebase not available
-        localStorage.setItem('favorites', JSON.stringify(Array.from(favorites)));
-        return;
+        throw new Error('Firebase not initialized');
     }
     try {
         await db.collection('users').doc(userId).collection('data').doc('favorites').set({
@@ -62,38 +82,30 @@ async function saveFavorites(userId, favorites) {
         console.log("Favorites synced to Firestore.");
     } catch (error) {
         console.error("Error saving favorites:", error);
-        // Fallback to localStorage
-        localStorage.setItem('favorites', JSON.stringify(Array.from(favorites)));
+        throw error;
     }
 }
 
 async function loadFavorites(userId) {
     if (!initFirebase()) {
-        // Fallback to localStorage
-        const stored = localStorage.getItem('favorites');
-        return stored ? JSON.parse(stored) : [];
+        throw new Error('Firebase not initialized');
     }
     try {
         const doc = await db.collection('users').doc(userId).collection('data').doc('favorites').get();
         if (doc.exists) {
             return doc.data().favorites || [];
         }
-        // Try localStorage as fallback
-        const stored = localStorage.getItem('favorites');
-        return stored ? JSON.parse(stored) : [];
+        return [];
     } catch (error) {
         console.error("Error loading favorites:", error);
-        const stored = localStorage.getItem('favorites');
-        return stored ? JSON.parse(stored) : [];
+        throw error;
     }
 }
 
 // Sync Playlists
 async function savePlaylists(userId, playlists) {
     if (!initFirebase()) {
-        // Fallback to localStorage
-        localStorage.setItem('playlists', JSON.stringify(playlists));
-        return;
+        throw new Error('Firebase not initialized');
     }
     try {
         await db.collection('users').doc(userId).collection('data').doc('playlists').set({
@@ -103,28 +115,187 @@ async function savePlaylists(userId, playlists) {
         console.log("Playlists synced to Firestore.");
     } catch (error) {
         console.error("Error saving playlists:", error);
-        // Fallback to localStorage
-        localStorage.setItem('playlists', JSON.stringify(playlists));
+        throw error;
     }
 }
 
 async function loadPlaylists(userId) {
     if (!initFirebase()) {
-        // Fallback to localStorage
-        const stored = localStorage.getItem('playlists');
-        return stored ? JSON.parse(stored) : [];
+        throw new Error('Firebase not initialized');
     }
     try {
         const doc = await db.collection('users').doc(userId).collection('data').doc('playlists').get();
         if (doc.exists) {
             return doc.data().playlists || [];
         }
-        // Try localStorage as fallback
-        const stored = localStorage.getItem('playlists');
-        return stored ? JSON.parse(stored) : [];
+        return [];
     } catch (error) {
         console.error("Error loading playlists:", error);
-        const stored = localStorage.getItem('playlists');
-        return stored ? JSON.parse(stored) : [];
+        throw error;
+    }
+}
+
+// Sync Settings
+async function saveSettings(userId, settings) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        await db.collection('users').doc(userId).collection('data').doc('settings').set({
+            settings: settings,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        console.log("Settings synced to Firestore.");
+    } catch (error) {
+        console.error("Error saving settings:", error);
+        throw error;
+    }
+}
+
+async function loadSettings(userId) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        const doc = await db.collection('users').doc(userId).collection('data').doc('settings').get();
+        if (doc.exists) {
+            return doc.data().settings || {};
+        }
+        return {};
+    } catch (error) {
+        console.error("Error loading settings:", error);
+        throw error;
+    }
+}
+
+// Sync Statistics
+async function saveStatisticsToDB(userId, statistics) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        await db.collection('users').doc(userId).collection('data').doc('statistics').set({
+            statistics: statistics,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        console.log("Statistics synced to Firestore.");
+    } catch (error) {
+        console.error("Error saving statistics:", error);
+        throw error;
+    }
+}
+
+async function loadStatisticsFromDB(userId) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        const doc = await db.collection('users').doc(userId).collection('data').doc('statistics').get();
+        if (doc.exists) {
+            return doc.data().statistics || {};
+        }
+        return {};
+    } catch (error) {
+        console.error("Error loading statistics:", error);
+        throw error;
+    }
+}
+
+// Sync Queue
+async function saveQueue(userId, queue) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        await db.collection('users').doc(userId).collection('data').doc('queue').set({
+            queue: queue,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        console.log("Queue synced to Firestore.");
+    } catch (error) {
+        console.error("Error saving queue:", error);
+        throw error;
+    }
+}
+
+async function loadQueue(userId) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        const doc = await db.collection('users').doc(userId).collection('data').doc('queue').get();
+        if (doc.exists) {
+            return doc.data().queue || [];
+        }
+        return [];
+    } catch (error) {
+        console.error("Error loading queue:", error);
+        throw error;
+    }
+}
+
+// Sync Lyrics Settings
+async function saveLyricsSettings(userId, lyricsSettings) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        await db.collection('users').doc(userId).collection('data').doc('lyricsSettings').set({
+            lyricsSettings: lyricsSettings,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        console.log("Lyrics settings synced to Firestore.");
+    } catch (error) {
+        console.error("Error saving lyrics settings:", error);
+        throw error;
+    }
+}
+
+async function loadLyricsSettings(userId) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        const doc = await db.collection('users').doc(userId).collection('data').doc('lyricsSettings').get();
+        if (doc.exists) {
+            return doc.data().lyricsSettings || {};
+        }
+        return {};
+    } catch (error) {
+        console.error("Error loading lyrics settings:", error);
+        throw error;
+    }
+}
+
+// Sync Theme Settings
+async function saveThemeSettings(userId, themeSettings) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        await db.collection('users').doc(userId).collection('data').doc('themeSettings').set({
+            themeSettings: themeSettings,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        console.log("Theme settings synced to Firestore.");
+    } catch (error) {
+        console.error("Error saving theme settings:", error);
+        throw error;
+    }
+}
+
+async function loadThemeSettings(userId) {
+    if (!initFirebase()) {
+        throw new Error('Firebase not initialized');
+    }
+    try {
+        const doc = await db.collection('users').doc(userId).collection('data').doc('themeSettings').get();
+        if (doc.exists) {
+            return doc.data().themeSettings || {};
+        }
+        return {};
+    } catch (error) {
+        console.error("Error loading theme settings:", error);
+        throw error;
     }
 }

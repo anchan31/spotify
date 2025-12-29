@@ -1276,10 +1276,11 @@ body {
 }
 
 .eq-slider {
-    writing-mode: bt-lr; /* IE */
-    appearance: slider-vertical;
-    -webkit-appearance: slider-vertical;
-    -moz-appearance: slider-vertical;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     width: 100%;
     height: 150px;
     accent-color: var(--highlight);

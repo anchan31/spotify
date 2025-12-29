@@ -20,12 +20,13 @@ class ThemeManager {
         };
         this.currentTheme = 'pink';
         this.darkMode = false;
-        this.initDarkMode();
+        // initDarkMode will be called after Firebase is initialized
     }
 
-    initDarkMode() {
-        const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-        this.darkMode = savedDarkMode;
+    async initDarkMode() {
+        // Load from Firebase
+        await this.loadThemeSettings();
+        
         if (this.darkMode) {
             document.body.classList.add('dark-mode');
         }
@@ -40,15 +41,14 @@ class ThemeManager {
         }
     }
 
-    toggleDarkMode() {
+    async toggleDarkMode() {
         this.darkMode = !this.darkMode;
         document.body.classList.toggle('dark-mode', this.darkMode);
-        localStorage.setItem('darkMode', this.darkMode);
+        await this.saveThemeSettings();
 
         // Re-apply theme to adjust background gradients if necessary
-        const saved = localStorage.getItem('selectedTheme');
-        if (saved) {
-            const themeData = JSON.parse(saved);
+        const themeData = await this.loadTheme();
+        if (themeData) {
             this.applyTheme(themeData.name, themeData.customColor);
         } else {
             this.applyTheme(this.currentTheme);
@@ -93,7 +93,10 @@ class ThemeManager {
             document.documentElement.style.setProperty('--accent-a05', this.hexToRgba(theme.accent, 0.05));
 
             this.currentTheme = themeName;
-            this.saveTheme(themeName, customColor);
+            // Save will be handled asynchronously
+            this.saveTheme(themeName, customColor).catch(err => {
+                console.error('Error saving theme:', err);
+            });
         }
     }
 
@@ -114,24 +117,70 @@ class ThemeManager {
         return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
     }
 
-    saveTheme(themeName, customColor) {
+    async saveTheme(themeName, customColor) {
         const themeData = { name: themeName };
         if (customColor) themeData.customColor = customColor;
-        localStorage.setItem('selectedTheme', JSON.stringify(themeData));
+        await this.saveThemeSettings();
     }
 
-    loadTheme() {
-        const saved = localStorage.getItem('selectedTheme');
-        if (saved) {
-            try {
-                const themeData = JSON.parse(saved);
-                this.applyTheme(themeData.name, themeData.customColor);
-                return themeData;
-            } catch (e) {
-                console.error('Failed to load theme:', e);
+    async loadTheme() {
+        return await this.loadThemeSettings();
+    }
+
+    async loadThemeSettings() {
+        try {
+            // Get userId from global scope (defined in music-Scripts.js)
+            let userId = window.userId;
+            if (!userId && typeof getUserId === 'function') {
+                userId = await getUserId();
+                window.userId = userId;
             }
+            
+            if (userId && typeof loadThemeSettings === 'function') {
+                const settings = await loadThemeSettings(userId);
+                if (settings.darkMode !== undefined) {
+                    this.darkMode = settings.darkMode === true || settings.darkMode === 'true';
+                }
+                if (settings.selectedTheme) {
+                    try {
+                        const themeData = typeof settings.selectedTheme === 'string' 
+                            ? JSON.parse(settings.selectedTheme) 
+                            : settings.selectedTheme;
+                        this.applyTheme(themeData.name, themeData.customColor);
+                        return themeData;
+                    } catch (e) {
+                        console.error('Failed to parse theme data:', e);
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Error loading theme settings:', err);
         }
         return null;
+    }
+
+    async saveThemeSettings() {
+        try {
+            // Get userId from global scope (defined in music-Scripts.js)
+            let userId = window.userId;
+            if (!userId && typeof getUserId === 'function') {
+                userId = await getUserId();
+                window.userId = userId;
+            }
+            
+            if (userId && typeof saveThemeSettings === 'function') {
+                const settings = {
+                    darkMode: this.darkMode,
+                    selectedTheme: {
+                        name: this.currentTheme,
+                        customColor: this.themes.custom ? this.themes.custom.primary : null
+                    }
+                };
+                await saveThemeSettings(userId, settings);
+            }
+        } catch (err) {
+            console.error('Error saving theme settings:', err);
+        }
     }
 }
 

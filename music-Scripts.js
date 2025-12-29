@@ -83,11 +83,11 @@ let nextMusicIndex = null;
 let playbackSpeed = 1.0;
 let sleepTimer = null;
 let sleepTimerDuration = 0;
-let songRatings = {}; // {songIndex: rating (1-5)}
 let playCounts = {}; // {songIndex: count}
 let recentlyPlayed = []; // Array of song indices
 let gaplessPlayback = false;
 let autoPlayNext = true;
+let normalizeVolume = false; // Volume normalization setting
 
 // Favorites (synced with Firebase)
 let favorites = new Set();
@@ -96,34 +96,86 @@ let userId = null;
 
 // Initialize Firebase sync
 async function initFirebaseSync() {
-    userId = getUserId();
-    if (typeof initUser === 'function') {
-        await initUser(userId);
+    try {
+        userId = await getUserId();
+        if (typeof initUser === 'function') {
+            await initUser(userId);
+        }
+        // Load favorites from Firebase
+        if (typeof loadFavorites === 'function') {
+            try {
+                const loadedFavorites = await loadFavorites(userId);
+                favorites = new Set(loadedFavorites);
+            } catch (err) {
+                console.error('Error loading favorites from Firebase:', err);
+                favorites = new Set([]);
+            }
+        } else {
+            favorites = new Set([]);
+        }
+        console.log('Loaded favorites:', favorites.size);
+        
+        // Load all settings
+        await loadAllSettings();
+    } catch (err) {
+        console.error('Error initializing Firebase sync:', err);
     }
-    // Load favorites from Firebase
-    if (typeof loadFavorites === 'function') {
-        const loadedFavorites = await loadFavorites(userId);
-        favorites = new Set(loadedFavorites);
-    } else {
-        // Fallback to localStorage
-        const stored = localStorage.getItem('favorites');
-        favorites = new Set(stored ? JSON.parse(stored) : []);
-    }
-    console.log('Loaded favorites:', favorites.size);
 }
 
-function saveFavoritesToStorage() {
+// Load all settings from Firebase
+async function loadAllSettings() {
+    if (!userId || typeof loadSettings !== 'function') return;
+    
     try {
-        // Save to localStorage as backup
-        localStorage.setItem('favorites', JSON.stringify(Array.from(favorites)));
-        // Sync to Firebase
+        const settings = await loadSettings(userId);
+        
+        // Apply settings
+        if (settings.crossfadeDuration !== undefined) {
+            crossfadeDuration = parseFloat(settings.crossfadeDuration);
+        }
+        if (settings.normalizeVolume !== undefined) {
+            normalizeVolume = settings.normalizeVolume === true || settings.normalizeVolume === 'true';
+        }
+        if (settings.playbackSpeed !== undefined) {
+            playbackSpeed = parseFloat(settings.playbackSpeed);
+            if (mainAudio) mainAudio.playbackRate = playbackSpeed;
+        }
+        if (settings.gaplessPlayback !== undefined) {
+            gaplessPlayback = settings.gaplessPlayback === true || settings.gaplessPlayback === 'true';
+        }
+        if (settings.autoPlayNext !== undefined) {
+            autoPlayNext = settings.autoPlayNext !== false && settings.autoPlayNext !== 'false';
+        }
+    } catch (err) {
+        console.error('Error loading settings:', err);
+    }
+}
+
+// Save all settings to Firebase
+async function saveAllSettings() {
+    if (!userId || typeof saveSettings !== 'function') return;
+    
+    try {
+        const settings = {
+            crossfadeDuration: crossfadeDuration,
+            normalizeVolume: normalizeVolume,
+            playbackSpeed: playbackSpeed,
+            gaplessPlayback: gaplessPlayback,
+            autoPlayNext: autoPlayNext
+        };
+        await saveSettings(userId, settings);
+    } catch (err) {
+        console.error('Error saving settings:', err);
+    }
+}
+
+async function saveFavoritesToStorage() {
+    try {
         if (userId && typeof saveFavorites === 'function') {
-            saveFavorites(userId, favorites).catch(err => {
-                console.warn('Firebase sync failed, using localStorage:', err);
-            });
+            await saveFavorites(userId, favorites);
         }
     } catch (e) {
-        console.warn('Could not save favorites:', e);
+        console.error('Could not save favorites:', e);
     }
 }
 
@@ -162,14 +214,22 @@ window.addEventListener("load", async () => {
 
     // Initialize Theme Manager
     themeManager = new ThemeManager();
-
-    // Load saved theme
-    const savedTheme = themeManager.loadTheme();
+    // Initialize dark mode and load theme from Firebase
+    await themeManager.initDarkMode();
+    
+    // Wait for theme to load and update UI
+    const savedTheme = await themeManager.loadTheme();
     if (savedTheme) {
         const themeOption = document.querySelector(`[data-theme="${savedTheme.name}"]`);
         if (themeOption) {
             document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
             themeOption.classList.add('active');
+            if (savedTheme.name === 'custom' && savedTheme.customColor) {
+                const customPicker = document.querySelector('.custom-color-picker');
+                if (customPicker) customPicker.style.display = 'block';
+                const colorInput = document.getElementById('custom-theme-color');
+                if (colorInput) colorInput.value = savedTheme.customColor;
+            }
         }
     }
 
@@ -498,8 +558,6 @@ function loadMusic(indexNumb) {
     fsArtist.innerText = song.artist;
     attemptImageFormats(fsImg, `images/${song.img}`, `images/music-placeholder.jpg`);
 
-    // Update rating display
-    updateRatingDisplay(indexNumb);
 
     // Update Media Session Metadata
     if ("mediaSession" in navigator) {
@@ -904,7 +962,7 @@ collapsePlayerBtn.addEventListener("click", () => {
 // Advanced Search Logic with Filters
 let searchFilters = {
     type: 'all', // all, songs, artists, albums
-    sortBy: 'relevance' // relevance, name, artist, plays, rating
+    sortBy: 'relevance' // relevance, name, artist, plays
 };
 
 // Add search filter UI
@@ -925,7 +983,6 @@ if (searchHeader && !document.getElementById('search-filters')) {
             <option value="name">Name</option>
             <option value="artist">Artist</option>
             <option value="plays">Most Played</option>
-            <option value="rating">Highest Rated</option>
         </select>
     `;
     searchHeader.appendChild(filterDiv);
@@ -962,12 +1019,6 @@ function performSearch() {
             const aIdx = allMusic.indexOf(a) + 1;
             const bIdx = allMusic.indexOf(b) + 1;
             return (playCounts[bIdx] || 0) - (playCounts[aIdx] || 0);
-        });
-    } else if (searchFilters.sortBy === 'rating') {
-        filteredSongs.sort((a, b) => {
-            const aIdx = allMusic.indexOf(a) + 1;
-            const bIdx = allMusic.indexOf(b) + 1;
-            return (songRatings[bIdx] || 0) - (songRatings[aIdx] || 0);
         });
     } else if (searchFilters.sortBy === 'name') {
         filteredSongs.sort((a, b) => a.name.localeCompare(b.name));
@@ -1477,37 +1528,34 @@ function setupSettings() {
     const crossfadeSlider = document.getElementById('crossfade-duration');
     const crossfadeValue = document.getElementById('crossfade-value');
     if (crossfadeSlider && crossfadeValue) {
-        // Load saved value
-        const saved = localStorage.getItem('crossfadeDuration');
-        if (saved) {
-            crossfadeDuration = parseFloat(saved);
-            crossfadeSlider.value = crossfadeDuration;
-            crossfadeValue.textContent = crossfadeDuration + 's';
-        }
+        // Value loaded from Firebase in loadAllSettings
+        crossfadeSlider.value = crossfadeDuration;
+        crossfadeValue.textContent = crossfadeDuration + 's';
         
         crossfadeSlider.addEventListener('input', (e) => {
             crossfadeDuration = parseFloat(e.target.value);
             crossfadeValue.textContent = crossfadeDuration + 's';
-            localStorage.setItem('crossfadeDuration', crossfadeDuration);
+            saveAllSettings();
         });
     }
     
     // Normalization Toggle
     const normalizeToggle = document.getElementById('normalize-toggle');
     if (normalizeToggle) {
-        const saved = localStorage.getItem('normalizeVolume');
-        if (saved === 'true') {
+        // Value loaded from Firebase in loadAllSettings
+        if (normalizeVolume) {
             normalizeToggle.checked = true;
             enableNormalization();
         }
         
         normalizeToggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
+            normalizeVolume = e.target.checked;
+            if (normalizeVolume) {
                 enableNormalization();
             } else {
                 disableNormalization();
             }
-            localStorage.setItem('normalizeVolume', e.target.checked);
+            saveAllSettings();
         });
     }
     
@@ -1538,19 +1586,16 @@ function setupSettings() {
     const speedSlider = document.getElementById('playback-speed');
     const speedValue = document.getElementById('speed-value');
     if (speedSlider && speedValue) {
-        const saved = localStorage.getItem('playbackSpeed');
-        if (saved) {
-            playbackSpeed = parseFloat(saved);
-            speedSlider.value = playbackSpeed;
-            speedValue.textContent = playbackSpeed.toFixed(1) + 'x';
-            mainAudio.playbackRate = playbackSpeed;
-        }
+        // Value loaded from Firebase in loadAllSettings
+        speedSlider.value = playbackSpeed;
+        speedValue.textContent = playbackSpeed.toFixed(1) + 'x';
+        if (mainAudio) mainAudio.playbackRate = playbackSpeed;
         
         speedSlider.addEventListener('input', (e) => {
             playbackSpeed = parseFloat(e.target.value);
             speedValue.textContent = playbackSpeed.toFixed(1) + 'x';
-            mainAudio.playbackRate = playbackSpeed;
-            localStorage.setItem('playbackSpeed', playbackSpeed);
+            if (mainAudio) mainAudio.playbackRate = playbackSpeed;
+            saveAllSettings();
         });
     }
     
@@ -1567,28 +1612,22 @@ function setupSettings() {
     // Gapless Playback
     const gaplessToggle = document.getElementById('gapless-toggle');
     if (gaplessToggle) {
-        const saved = localStorage.getItem('gaplessPlayback');
-        if (saved === 'true') {
-            gaplessPlayback = true;
-            gaplessToggle.checked = true;
-        }
+        // Value loaded from Firebase in loadAllSettings
+        gaplessToggle.checked = gaplessPlayback;
         gaplessToggle.addEventListener('change', (e) => {
             gaplessPlayback = e.target.checked;
-            localStorage.setItem('gaplessPlayback', gaplessPlayback);
+            saveAllSettings();
         });
     }
     
     // Auto-play Next
     const autoplayToggle = document.getElementById('autoplay-toggle');
     if (autoplayToggle) {
-        const saved = localStorage.getItem('autoPlayNext');
-        if (saved === 'false') {
-            autoPlayNext = false;
-            autoplayToggle.checked = false;
-        }
+        // Value loaded from Firebase in loadAllSettings
+        autoplayToggle.checked = autoPlayNext;
         autoplayToggle.addEventListener('change', (e) => {
             autoPlayNext = e.target.checked;
-            localStorage.setItem('autoPlayNext', autoPlayNext);
+            saveAllSettings();
         });
     }
 }
@@ -1598,8 +1637,6 @@ function setupEnhancedFeatures() {
     // Load statistics
     loadStatistics();
     
-    // Setup rating controls
-    setupRatingControls();
     
     // Setup queue reordering
     setupQueueReordering();
@@ -1646,88 +1683,37 @@ function setSleepTimer(minutes) {
     }, 60000);
 }
 
-// Rating System
-function setupRatingControls() {
-    const ratingControls = document.getElementById('rating-controls');
-    if (!ratingControls) return;
-    
-    const stars = ratingControls.querySelectorAll('.star-rating');
-    stars.forEach(star => {
-        star.addEventListener('click', (e) => {
-            const rating = parseInt(e.target.dataset.rating);
-            setRating(musicIndex, rating);
-        });
-        
-        star.addEventListener('mouseenter', (e) => {
-            const rating = parseInt(e.target.dataset.rating);
-            highlightStars(rating);
-        });
-    });
-    
-    ratingControls.addEventListener('mouseleave', () => {
-        updateRatingDisplay(musicIndex);
-    });
-}
-
-function setRating(songIndex, rating) {
-    songRatings[songIndex] = rating;
-    saveStatistics();
-    updateRatingDisplay(songIndex);
-    showNotification(`Rated ${rating} star${rating > 1 ? 's' : ''}`);
-}
-
-function highlightStars(rating) {
-    const stars = document.querySelectorAll('.star-rating');
-    stars.forEach((star, index) => {
-        if (index < rating) {
-            star.textContent = 'star';
-            star.style.color = '#ffc107';
-        } else {
-            star.textContent = 'star_border';
-            star.style.color = '';
-        }
-    });
-}
-
-function updateRatingDisplay(songIndex) {
-    const stars = document.querySelectorAll('.star-rating');
-    const rating = songRatings[songIndex] || 0;
-    
-    stars.forEach((star, index) => {
-        if (index < rating) {
-            star.textContent = 'star';
-            star.style.color = '#ffc107';
-        } else {
-            star.textContent = 'star_border';
-            star.style.color = '';
-        }
-    });
-}
 
 // Statistics
-function loadStatistics() {
-    const savedRatings = localStorage.getItem('songRatings');
-    if (savedRatings) {
-        songRatings = JSON.parse(savedRatings);
-    }
+async function loadStatistics() {
+    if (!userId) return;
     
-    const savedPlayCounts = localStorage.getItem('playCounts');
-    if (savedPlayCounts) {
-        playCounts = JSON.parse(savedPlayCounts);
+    try {
+        if (typeof loadStatisticsFromDB === 'function') {
+            const stats = await loadStatisticsFromDB(userId);
+            if (stats.playCounts) playCounts = stats.playCounts;
+            if (stats.recentlyPlayed) recentlyPlayed = stats.recentlyPlayed;
+        }
+    } catch (err) {
+        console.error('Error loading statistics:', err);
     }
-    
-    const savedRecentlyPlayed = localStorage.getItem('recentlyPlayed');
-    if (savedRecentlyPlayed) {
-        recentlyPlayed = JSON.parse(savedRecentlyPlayed);
-    }
-    
     updateStatisticsDisplay();
 }
 
-function saveStatistics() {
-    localStorage.setItem('songRatings', JSON.stringify(songRatings));
-    localStorage.setItem('playCounts', JSON.stringify(playCounts));
-    localStorage.setItem('recentlyPlayed', JSON.stringify(recentlyPlayed));
+async function saveStatistics() {
+    if (!userId) return;
+    
+    try {
+        const stats = {
+            playCounts: playCounts,
+            recentlyPlayed: recentlyPlayed
+        };
+        if (typeof saveStatisticsToDB === 'function') {
+            await saveStatisticsToDB(userId, stats);
+        }
+    } catch (err) {
+        console.error('Error saving statistics:', err);
+    }
 }
 
 function updateStatisticsDisplay() {
@@ -2108,16 +2094,19 @@ function setupPlayerAnimation() {
 let songQueue = [];
 
 // Initialize Queue and Visualizer
-function initializeQueueAndVisualizer() {
-    // Load saved queue
-    const savedQueue = localStorage.getItem('songQueue');
-    if (savedQueue) {
-        try {
-            songQueue = JSON.parse(savedQueue);
+async function initializeQueueAndVisualizer() {
+    // Load saved queue from Firebase
+    if (!userId) {
+        userId = await getUserId();
+        window.userId = userId;
+    }
+    try {
+        if (typeof loadQueue === 'function') {
+            songQueue = await loadQueue(userId);
             updateQueueUI();
-        } catch (e) {
-            console.error('Failed to load queue:', e);
         }
+    } catch (e) {
+        console.error('Failed to load queue:', e);
     }
 
     // Initialize visualizer and equalizer
@@ -2461,9 +2450,46 @@ function updateQueueUI() {
     });
 }
 
-// Save queue to localStorage
+// Store reference to db-manager's saveQueue before we shadow it
+// This must be done before our local saveQueue function is defined
+let dbSaveQueueFn = null;
+if (typeof saveQueue === 'function' && saveQueue.length === 2) {
+    // This is likely the db-manager version (takes userId, queue)
+    dbSaveQueueFn = saveQueue;
+}
+
+// Save queue to Firebase (internal async function)
+async function saveQueueToFirebase() {
+    if (!userId) {
+        userId = await getUserId();
+        window.userId = userId;
+    }
+    try {
+        // Use stored reference or try to find it at runtime
+        let saveFn = dbSaveQueueFn;
+        if (!saveFn) {
+            // Try to find it - check if there's a function with 2 parameters
+            // This is a workaround for the shadowing issue
+            const possibleFn = window.saveQueue || (typeof saveQueue === 'function' && saveQueue.length === 2 ? saveQueue : null);
+            if (possibleFn && possibleFn !== saveQueueToFirebase) {
+                saveFn = possibleFn;
+            }
+        }
+        
+        if (saveFn && typeof saveFn === 'function') {
+            await saveFn(userId, songQueue);
+        }
+    } catch (e) {
+        console.error('Failed to save queue:', e);
+    }
+}
+
+// Wrapper function for compatibility with existing code
 function saveQueue() {
-    localStorage.setItem('songQueue', JSON.stringify(songQueue));
+    // Call the async function but don't block
+    saveQueueToFirebase().catch(err => {
+        console.error('Error saving queue:', err);
+    });
 }
 
 // Modified next music to check queue first
@@ -2606,25 +2632,35 @@ const playlistDeleteBtn = document.getElementById('playlist-delete-btn');
 
 // Load playlists from Firebase
 async function loadPlaylistsFromStorage() {
-    if (!userId) userId = getUserId();
-    if (typeof loadPlaylists === 'function') {
-        playlists = await loadPlaylists(userId);
-    } else {
-        // Fallback to localStorage
-        const stored = localStorage.getItem('playlists');
-        playlists = stored ? JSON.parse(stored) : [];
+    if (!userId) {
+        userId = await getUserId();
+        window.userId = userId;
+    }
+    try {
+        if (typeof loadPlaylists === 'function') {
+            playlists = await loadPlaylists(userId);
+        } else {
+            playlists = [];
+        }
+    } catch (err) {
+        console.error('Error loading playlists:', err);
+        playlists = [];
     }
     renderPlaylists();
 }
 
 // Save playlists to Firebase
 async function savePlaylistsToStorage() {
-    if (!userId) userId = getUserId();
-    localStorage.setItem('playlists', JSON.stringify(playlists)); // Backup
-    if (typeof savePlaylists === 'function') {
-        await savePlaylists(userId, playlists).catch(err => {
-            console.warn('Firebase sync failed, using localStorage:', err);
-        });
+    if (!userId) {
+        userId = await getUserId();
+        window.userId = userId;
+    }
+    try {
+        if (typeof savePlaylists === 'function') {
+            await savePlaylists(userId, playlists);
+        }
+    } catch (err) {
+        console.error('Error saving playlists:', err);
     }
 }
 
