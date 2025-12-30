@@ -97,7 +97,6 @@ let userId = null;
 // Playlist Variables
 let playlists = [];
 const playlistsGrid = document.getElementById('playlists-grid');
-const playlistsView = document.getElementById('playlists-view');
 const playlistDetailsView = document.getElementById('playlist-details-view');
 const playlistBackBtn = document.getElementById('playlist-back');
 const createPlaylistBtn = document.getElementById('create-playlist-btn');
@@ -111,6 +110,10 @@ const playlistDeleteBtn = document.getElementById('playlist-delete-btn');
 
 // Queue and Visualizer Variables
 let songQueue = [];
+let isShuffleOn = false;
+let repeatMode = 0; // 0: off, 1: repeat all, 2: repeat one
+let shuffleOrder = [];
+
 
 // Custom Prompt Logic
 let modalCallback = null;
@@ -246,24 +249,28 @@ function openModal(title, defaultValue, callback) {
     if (playlistInput) playlistInput.value = defaultValue || '';
     modalCallback = callback;
     playlistModal.classList.add('active');
+    playlistModal.style.display = 'flex'; // Override inline style
     if (playlistInput) playlistInput.focus();
 }
 
 function closeModal() {
-    playlistModal.classList.remove('active');
+    if (playlistModal) {
+        playlistModal.classList.remove('active');
+        playlistModal.style.display = 'none'; // Explicitly set display
+    }
     modalCallback = null;
 }
 
 if (playlistModalSave) {
     playlistModalSave.onclick = () => {
-        const value = playlistModalInput.value;
+        const value = playlistInput.value;
         if (value && value.trim()) {
             if (modalCallback) modalCallback(value.trim());
             closeModal();
         } else {
             // Shake animation or error?
-            playlistModalInput.style.borderColor = 'red';
-            setTimeout(() => playlistModalInput.style.borderColor = '', 1000);
+            playlistInput.style.borderColor = 'red';
+            setTimeout(() => playlistInput.style.borderColor = '', 1000);
         }
     };
 }
@@ -529,6 +536,8 @@ function setupLibrary() {
                 panel.classList.add('active');
                 if (target === 'liked') {
                     renderLikedView();
+                } else if (target === 'playlists') {
+                    renderPlaylists();
                 }
             }
         });
@@ -622,15 +631,7 @@ function loadArtistDetails(artistName, songs) {
         li.appendChild(rowRight);
 
         // Events
-        li.setAttribute('tabindex', '0');
-        li.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'q') {
-                e.preventDefault();
-                toggleQueueForSong(originalIndex, li);
-            } else if (e.key === 'Enter') {
-                playSongFromList(originalIndex);
-            }
-        });
+        // Keyboard shortcuts removed
 
         li.addEventListener('click', (e) => {
             if (!e.target.closest('.row-right')) {
@@ -663,8 +664,7 @@ function loadArtistDetails(artistName, songs) {
     }
 
     // Helper to switch view
-    document.querySelector(".view.active").classList.remove("active");
-    artistDetailsView.classList.add("active");
+    switchView("artist-details-view");
 
     // Play all handler
     adPlayAll.onclick = () => {
@@ -675,11 +675,30 @@ function loadArtistDetails(artistName, songs) {
 
 artistBackBtn.addEventListener("click", () => {
     artistDetailsView.classList.remove("active");
-    // Determine where to go back? For now default to Artists view
-    document.getElementById("artists-view").classList.add("active");
-    // Also ensure tab is active visually?
+    // Standardized return to Library view
+    const libraryView = document.getElementById("library-view");
+    if (libraryView) {
+        document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+        libraryView.classList.add("active");
+
+        // Activate the Artists tab in Library
+        const libTabs = document.querySelectorAll('.lib-tab');
+        const libPanels = document.querySelectorAll('.lib-panel');
+
+        libTabs.forEach(t => t.classList.remove('active'));
+        libPanels.forEach(p => p.classList.remove('active'));
+
+        const artistsTab = document.querySelector('[data-lib-tab="artists"]');
+        const artistsPanel = document.getElementById('lib-artists');
+
+        if (artistsTab) artistsTab.classList.add('active');
+        if (artistsPanel) artistsPanel.classList.add('active');
+    }
+
+    // Update sidebar active state
     document.querySelectorAll(".sidebar li").forEach(l => l.classList.remove("active"));
-    document.querySelector('[data-view="artists"]').classList.add("active");
+    const librarySidebarItem = document.querySelector('[data-view="library"]');
+    if (librarySidebarItem) librarySidebarItem.classList.add("active");
 });
 
 // Core Player Logic
@@ -857,7 +876,146 @@ function prevMusic() {
         isPaused ? playMusic() : pauseMusic();
     });
 });
+
+// Previous Buttons
+[miniPrevBtn, fsPrevBtn].forEach(btn => {
+    if (btn) {
+        btn.addEventListener("click", () => {
+            prevMusic();
+        });
+    }
+});
+
+// Next Buttons
+[miniNextBtn, fsNextBtn].forEach(btn => {
+    if (btn) {
+        btn.addEventListener("click", () => {
+            nextMusic();
+        });
+    }
+});
+
+// Shuffle Button
+if (miniShuffleBtn) {
+    miniShuffleBtn.addEventListener("click", () => {
+        isShuffleOn = !isShuffleOn;
+        miniShuffleBtn.classList.toggle("active", isShuffleOn);
+        if (isShuffleOn) {
+            shuffleOrder = [...Array(allMusic.length).keys()].sort(() => Math.random() - 0.5);
+        }
+    });
+}
+
+// Repeat Buttons
+[miniRepeatBtn, fsRepeatBtn].forEach(btn => {
+    if (btn) {
+        btn.addEventListener("click", () => {
+            repeatMode = (repeatMode + 1) % 3; // 0: off, 1: repeat all, 2: repeat one
+            if (repeatMode === 0) {
+                btn.innerText = "repeat";
+                btn.classList.remove("active");
+            } else if (repeatMode === 1) {
+                btn.innerText = "repeat";
+                btn.classList.add("active");
+            } else {
+                btn.innerText = "repeat_one";
+                btn.classList.add("active");
+            }
+        });
+    }
+});
+
 // ==================== END CORE PLAYER ====================
+
+// Progress Bar - Click to seek
+[miniProgressArea, fsProgressArea].forEach(area => {
+    if (area) {
+        area.addEventListener("click", (e) => {
+            const progressWidth = area.clientWidth;
+            const clickX = e.offsetX;
+            const duration = mainAudio.duration;
+            mainAudio.currentTime = (clickX / progressWidth) * duration;
+        });
+    }
+});
+
+// Volume Slider
+if (miniVolumeSlider) {
+    miniVolumeSlider.addEventListener("input", (e) => {
+        mainAudio.volume = e.target.value / 100;
+        const volumeIcon = document.getElementById("mini-volume-icon");
+        if (volumeIcon) {
+            if (mainAudio.volume === 0) {
+                volumeIcon.innerText = "volume_off";
+            } else if (mainAudio.volume < 0.5) {
+                volumeIcon.innerText = "volume_down";
+            } else {
+                volumeIcon.innerText = "volume_up";
+            }
+        }
+    });
+}
+
+// Volume Icon - Click to mute/unmute
+const volumeIcon = document.getElementById("mini-volume-icon");
+if (volumeIcon) {
+    let previousVolume = 1;
+    volumeIcon.addEventListener("click", () => {
+        if (mainAudio.volume > 0) {
+            previousVolume = mainAudio.volume;
+            mainAudio.volume = 0;
+            miniVolumeSlider.value = 0;
+            volumeIcon.innerText = "volume_off";
+        } else {
+            mainAudio.volume = previousVolume;
+            miniVolumeSlider.value = previousVolume * 100;
+            if (previousVolume < 0.5) {
+                volumeIcon.innerText = "volume_down";
+            } else {
+                volumeIcon.innerText = "volume_up";
+            }
+        }
+    });
+}
+
+// Audio Time Update - Update progress bars and time displays
+mainAudio.addEventListener("timeupdate", () => {
+    const currentTime = mainAudio.currentTime;
+    const duration = mainAudio.duration;
+
+    // Update progress bars
+    if (duration) {
+        const progressPercent = (currentTime / duration) * 100;
+        if (miniProgressBar) miniProgressBar.style.width = `${progressPercent}%`;
+
+        const fsProgressFill = document.getElementById("fs-progress-bar-fill");
+        if (fsProgressFill) fsProgressFill.style.width = `${progressPercent}%`;
+    }
+
+    // Update time displays
+    const formatTime = (time) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    };
+
+    if (miniCurrentTime) miniCurrentTime.innerText = formatTime(currentTime);
+    if (fsCurrentTime) fsCurrentTime.innerText = formatTime(currentTime);
+    if (miniDuration && duration) miniDuration.innerText = formatTime(duration);
+    if (fsDuration && duration) fsDuration.innerText = formatTime(duration);
+});
+
+// Audio Ended - Handle next song
+mainAudio.addEventListener("ended", () => {
+    if (repeatMode === 2) {
+        // Repeat one - replay current song
+        mainAudio.currentTime = 0;
+        playMusic();
+    } else {
+        // Move to next song
+        nextMusic();
+    }
+});
 
 
 
@@ -1010,12 +1168,16 @@ function setupNavigation() {
             if (viewId === 'home') {
                 document.querySelector("#home-view .section-title h3").innerText = "Trending Now";
                 loadMusicList(allMusic, musicListUl);
-            } else if (viewId === 'liked') {
-                // Render Liked Songs view
-                renderLikedView();
-            } else if (viewId === 'playlists') {
-                // Render Playlists view
-                renderPlaylists();
+            } else if (viewId === 'library') {
+                // When entering library, ensure current tab content is rendered
+                const activeTab = document.querySelector('.lib-tab.active');
+                if (activeTab) {
+                    const tabType = activeTab.getAttribute('data-lib-tab');
+                    if (tabType === 'playlists') renderPlaylists();
+                    else if (tabType === 'liked') renderLikedView();
+                    // Artists and Albums are handled by their respective load functions which are called in initializeApp
+                    // and typically don't need frequent re-rendering of the entire grid unless data changes.
+                }
             } else if (viewId === 'settings') {
                 // Update statistics if stats panel is active
                 setTimeout(() => {
@@ -1032,23 +1194,7 @@ function setupNavigation() {
 
 // Lyrics logic refactored to lyrics.js
 
-// Keyboard Controls
-document.addEventListener("keydown", (e) => {
-    // Check if user is typing
-    if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") {
-        return;
-    }
-
-    if (e.code === "Space") {
-        e.preventDefault();
-        const isPaused = mainAudio.paused;
-        isPaused ? playMusic() : pauseMusic();
-    } else if (e.code === "ArrowRight") {
-        mainAudio.currentTime += 5;
-    } else if (e.code === "ArrowLeft") {
-        mainAudio.currentTime -= 5;
-    }
-});
+// Keyboard Controls - REMOVED
 
 // Media Session Actions (Hardware Keys)
 if ("mediaSession" in navigator) {
@@ -1220,15 +1366,7 @@ function loadAlbumDetails(album) {
         li.appendChild(rowRight);
 
         // Events
-        li.setAttribute('tabindex', '0');
-        li.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'q') {
-                e.preventDefault();
-                toggleQueueForSong(originalIndex, li);
-            } else if (e.key === 'Enter') {
-                playSongFromList(originalIndex);
-            }
-        });
+        // Keyboard shortcuts removed
 
         li.addEventListener('click', (e) => {
             if (!e.target.closest('.row-right')) {
@@ -1272,9 +1410,10 @@ function loadAlbumDetails(album) {
 if (albumBackBtn) {
     albumBackBtn.addEventListener("click", () => {
         albumDetailsView.classList.remove("active");
-        // Navigate back to Library view
+        // Standardized return to Library view
         const libraryView = document.getElementById("library-view");
         if (libraryView) {
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
             libraryView.classList.add("active");
 
             // Activate the Albums tab in Library
@@ -1284,7 +1423,7 @@ if (albumBackBtn) {
             libTabs.forEach(t => t.classList.remove('active'));
             libPanels.forEach(p => p.classList.remove('active'));
 
-            const albumsTab = document.querySelector('[data-lib-tab=\"albums\"]');
+            const albumsTab = document.querySelector('[data-lib-tab="albums"]');
             const albumsPanel = document.getElementById('lib-albums');
 
             if (albumsTab) albumsTab.classList.add('active');
@@ -1858,107 +1997,7 @@ function updateQueueUI() {
 
 // Advanced Keyboard Shortcuts
 function setupAdvancedKeyboardShortcuts() {
-    document.addEventListener("keydown", (e) => {
-        // Check if user is typing
-        if (document.activeElement.tagName === "INPUT" ||
-            document.activeElement.tagName === "TEXTAREA" ||
-            document.activeElement.isContentEditable) {
-            // Allow shortcuts in search
-            if (document.activeElement.id === 'main-search') {
-                if (e.key === 'Escape') {
-                    document.activeElement.blur();
-                }
-            } else {
-                return;
-            }
-        }
-
-        switch (e.key.toLowerCase()) {
-            case ' ':
-                e.preventDefault();
-                const isPaused = mainAudio.paused;
-                isPaused ? playMusic() : pauseMusic();
-                break;
-            case 'arrowright':
-                e.preventDefault();
-                mainAudio.currentTime += 5;
-                break;
-            case 'arrowleft':
-                e.preventDefault();
-                mainAudio.currentTime -= 5;
-                break;
-            case 'n':
-                e.preventDefault();
-                nextMusicWithQueue();
-                break;
-            case 'p':
-                e.preventDefault();
-                prevMusic();
-                break;
-            case 'm':
-                e.preventDefault();
-                const currentVolume = mainAudio.volume;
-                if (currentVolume > 0) {
-                    mainAudio.volume = 0;
-                    miniVolumeSlider.value = 0;
-                    showNotification('Muted');
-                } else {
-                    mainAudio.volume = 0.5;
-                    miniVolumeSlider.value = 50;
-                    showNotification('Unmuted');
-                }
-                break;
-            case 'arrowup':
-                e.preventDefault();
-                const volUp = Math.min(1, mainAudio.volume + 0.1);
-                mainAudio.volume = volUp;
-                miniVolumeSlider.value = volUp * 100;
-                break;
-            case 'arrowdown':
-                e.preventDefault();
-                const volDown = Math.max(0, mainAudio.volume - 0.1);
-                mainAudio.volume = volDown;
-                miniVolumeSlider.value = volDown * 100;
-                break;
-            case 'f':
-                e.preventDefault();
-                toggleFavorite(musicIndex);
-                showNotification(isFavorite(musicIndex) ? 'Added to favorites' : 'Removed from favorites');
-                break;
-            case 'q':
-                e.preventDefault();
-                if (!songQueue.includes(musicIndex)) {
-                    addToQueue(musicIndex);
-                } else {
-                    removeFromQueue(musicIndex);
-                }
-                break;
-            case 'l':
-                e.preventDefault();
-                if (fsLyricsToggle) fsLyricsToggle.click();
-                break;
-            case 'v':
-                e.preventDefault();
-                if (document.getElementById('fs-visualizer-toggle')) {
-                    document.getElementById('fs-visualizer-toggle').click();
-                }
-                break;
-            case '?':
-                e.preventDefault();
-                // Toggle shortcuts panel
-                const shortcutsPanel = document.getElementById('shortcuts-panel');
-                const shortcutsTab = document.querySelector('[data-settings-tab="shortcuts"]');
-                if (shortcutsPanel && shortcutsTab) {
-                    if (document.getElementById('settings-view').classList.contains('active')) {
-                        shortcutsTab.click();
-                    } else {
-                        document.querySelector('[data-view="settings"]').click();
-                        setTimeout(() => shortcutsTab.click(), 100);
-                    }
-                }
-                break;
-        }
-    });
+    // Global keyboard shortcuts removed
 }
 
 // Quick Access
@@ -2788,11 +2827,27 @@ function loadPlaylistDetails(index) {
             playlists.splice(index, 1);
             savePlaylistsToStorage();
             renderPlaylists();
-            // Go back to playlists view
-            playlistDetailsView.classList.remove('active');
-            playlistsView.classList.add('active');
-            document.querySelectorAll('.sidebar li').forEach(l => l.classList.remove('active'));
-            document.querySelector('[data-view="playlists"]').classList.add('active');
+            // Go back to library playlists view
+            const libraryView = document.getElementById('library-view');
+            if (libraryView) {
+                switchView("library-view");
+
+                // Activate Playlists tab in Library
+                const libTabs = document.querySelectorAll('.lib-tab');
+                const libPanels = document.querySelectorAll('.lib-panel');
+                libTabs.forEach(t => t.classList.remove('active'));
+                libPanels.forEach(p => p.classList.remove('active'));
+
+                const playlistsTab = document.querySelector('[data-lib-tab="playlists"]');
+                const playlistsPanel = document.getElementById('lib-playlists');
+                if (playlistsTab) playlistsTab.classList.add('active');
+                if (playlistsPanel) playlistsPanel.classList.add('active');
+
+                // Update sidebar active state
+                document.querySelectorAll(".sidebar li").forEach(l => l.classList.remove("active"));
+                const librarySidebarItem = document.querySelector('[data-view="library"]');
+                if (librarySidebarItem) librarySidebarItem.classList.add("active");
+            }
         }
     };
 }
@@ -2922,13 +2977,11 @@ function addToPlaylist(playlistIndex, songIndex) {
 if (playlistBackBtn) {
     playlistBackBtn.addEventListener('click', () => {
         playlistDetailsView.classList.remove('active');
-        // Navigate back to Library
+        // Standardized return to Library view
         const libraryView = document.getElementById('library-view');
-        const playlistsView = document.getElementById('playlists-view');
 
         if (libraryView) {
-            // Hide other views
-            document.querySelectorAll(".view-panel").forEach(v => v.classList.remove("active"));
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
             libraryView.classList.add('active');
 
             // Activate Playlists tab in Library
@@ -2951,9 +3004,7 @@ if (playlistBackBtn) {
 }
 
 // Create playlist button
-if (createPlaylistBtn) {
-    createPlaylistBtn.addEventListener('click', createPlaylist);
-}
+// Redundant listener removed - handled in initializeApp
 
 // Profile Logic
 function setupProfile() {

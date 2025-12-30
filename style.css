@@ -4107,6 +4107,10 @@ body.dark-mode #google-login-btn {
     animation: fadeIn 0.3s ease;
 }
 
+.modal-overlay.active {
+    display: flex !important;
+}
+
 .modal-card {
     background: white;
     padding: 30px;
