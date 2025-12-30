@@ -346,10 +346,11 @@ body {
         bottom: 0;
         left: 0;
         width: 100%;
-        height: auto;
+        height: 70px !important;
+        /* Standardized height */
         padding: 0;
         z-index: 2000;
-        background: rgba(var(--white-rgb, 255, 255, 255), 0.98);
+        background: var(--white) !important;
         box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
         border-right: none;
         border-top: 1px solid var(--glass-border);
@@ -944,7 +945,7 @@ body {
     height: 100vh;
     box-sizing: border-box;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), #fff);
-    z-index: 1000;
+    z-index: 3000;
     transition: top 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
     display: flex;
     flex-direction: column;
@@ -954,6 +955,10 @@ body {
 
 .full-screen-player.active {
     top: 0;
+}
+
+body.dark-mode .full-screen-player {
+    background: linear-gradient(180deg, #121212, #000);
 }
 
 .fs-header {
@@ -1130,6 +1135,15 @@ body {
     top: 0;
 }
 
+body.dark-mode .lyrics-overlay {
+    background: rgba(18, 18, 18, 0.98);
+    color: white;
+}
+
+body.dark-mode .lyrics-header-fs {
+    border-bottom-color: #333;
+}
+
 .lyrics-header-fs {
     display: flex;
     justify-content: space-between;
@@ -1191,6 +1205,142 @@ body {
 }
 
 /* Media Queries for responsiveness */
+@media (max-width: 768px) {
+
+    /* Hide visualizer and its toggle on mobile */
+    .audio-visualizer,
+    #fs-visualizer-toggle,
+    #mini-visualizer-toggle {
+        display: none !important;
+    }
+
+    /* Redesign Mini Player for Mobile */
+    .player-bar {
+        position: fixed;
+        /* Necessary for bottom/left to work */
+        height: 65px;
+        /* Compact height */
+        padding: 0 12px;
+        bottom: 70px;
+        /* Positioned above the bottom navigation (approx 70px) */
+        width: calc(100% - 20px);
+        left: 10px;
+        border-radius: 12px;
+        margin-bottom: 5px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        border: none;
+        z-index: 1500;
+        /* Between content and bottom nav */
+    }
+
+    .player-bar .song-info {
+        width: 60%;
+        /* More room for title */
+    }
+
+    .player-bar .song-info img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .player-bar .song-info .details #mini-name {
+        font-size: 14px;
+    }
+
+    .player-bar .player-controls {
+        width: 40%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+
+    .player-bar .control-buttons {
+        margin-bottom: 0;
+        gap: 15px;
+    }
+
+    /* Keep only Skip Next and Play/Pause in Mini player on mobile to save space */
+    #mini-shuffle,
+    #mini-prev,
+    #mini-repeat,
+    .player-bar .progress-container {
+        display: none !important;
+    }
+
+    .player-bar .control-buttons .mini-play-pause {
+        width: 44px;
+        height: 44px;
+    }
+
+    .player-bar .volume-controls {
+        display: flex !important;
+        width: auto !important;
+    }
+
+    .player-bar #mini-volume-icon,
+    .player-bar #mini-volume {
+        display: none !important;
+    }
+
+    #expand-player {
+        font-size: 28px !important;
+        margin-left: 10px;
+        color: var(--highlight);
+    }
+
+    /* Full Screen Player Mobile Refinements */
+    .full-screen-player {
+        padding: 15px;
+    }
+
+    .fs-header {
+        margin-bottom: 10px;
+    }
+
+    .fs-details h2 {
+        font-size: 24px;
+    }
+
+    .fs-details p {
+        font-size: 16px;
+    }
+
+    .fs-controls {
+        padding: 0;
+        justify-content: space-evenly;
+    }
+
+    .fs-controls i {
+        font-size: 32px;
+        /* Bigger touch targets */
+    }
+
+    .fs-play-pause {
+        width: 80px;
+        height: 80px;
+    }
+
+    .fs-play-pause i {
+        font-size: 40px;
+    }
+
+    /* Fix Full Screen Image Centering and Responsiveness */
+    .fs-image {
+        width: 75vw !important;
+        height: 75vw !important;
+        max-width: 320px !important;
+        max-height: 320px !important;
+        margin: 0 auto 30px auto !important;
+        display: block !important;
+    }
+
+    .fs-content-wrapper {
+        justify-content: center !important;
+        padding-top: 20px !important;
+    }
+}
+
 @media (max-width: 500px) {
     .fs-image {
         width: 280px;

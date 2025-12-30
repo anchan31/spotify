@@ -774,6 +774,12 @@ function loadMusic(indexNumb) {
 
 function playMusic() {
     isMusicPaused = false;
+
+    // Resume AudioContext if it's suspended (crucial for mobile)
+    if (window.equalizer && window.equalizer.audioContext && window.equalizer.audioContext.state === 'suspended') {
+        window.equalizer.audioContext.resume();
+    }
+
     mainAudio.play();
     miniPlayPauseBtn.querySelector("i").innerText = "pause";
     fsPlayPauseBtn.querySelector("i").innerText = "pause";
@@ -1147,6 +1153,11 @@ function performSearch() {
 searchInput.addEventListener("input", (e) => {
     performSearch();
 });
+
+// Mobile Detection Helper
+function isMobileDevice() {
+    return (window.innerWidth <= 768) || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
 
 // Tabs Navigation
 function setupNavigation() {
@@ -2067,6 +2078,17 @@ function setupPlayerAnimation() {
 
     expandPlayerBtn.addEventListener("click", expandHandler);
     collapsePlayerBtn.addEventListener("click", collapseHandler);
+
+    // Make song info clickable to expand on mobile
+    if (miniImg) {
+        miniImg.style.cursor = 'pointer';
+        miniImg.addEventListener('click', expandHandler);
+    }
+    const miniDetails = document.querySelector('.player-bar .details');
+    if (miniDetails) {
+        miniDetails.style.cursor = 'pointer';
+        miniDetails.addEventListener('click', expandHandler);
+    }
 }
 // Queue and Visualizer Functions for music-Scripts.js
 
@@ -2208,6 +2230,10 @@ function setupQueueHandlers() {
 
 // Setup Visualizer Event Handlers
 function setupVisualizerHandlers() {
+    if (isMobileDevice()) {
+        console.log('Mobile device detected: skipping visualizer handlers setup');
+        return;
+    }
     const visualizerToggle = document.getElementById('fs-visualizer-toggle');
     const visualizerCanvas = document.getElementById('audio-visualizer');
 
