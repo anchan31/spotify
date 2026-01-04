@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=5.0.0">
     <link rel="icon" href="Favicon.png">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ff74a4">
@@ -46,6 +46,28 @@
 </head>
 
 <body>
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('selectedTheme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.body.classList.add('dark-mode');
+            }
+        })();
+    </script>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-content">
+            <div class="logo-loader">
+                <i class="material-icons">music_note</i>
+            </div>
+            <h2>Loading Library...</h2>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Login Overlay -->
     <div id="login-overlay">
         <div class="login-card">
@@ -56,6 +78,8 @@
             <p>Sign in to access your music library</p>
 
             <div id="email-login-form">
+                <input type="text" id="login-username" placeholder="Username" class="login-input"
+                    style="display: none;">
                 <input type="email" id="login-email" placeholder="Email" class="login-input">
                 <input type="password" id="login-password" placeholder="Password" class="login-input">
                 <button id="email-login-btn" onclick="signInWithEmail()">Log In</button>
@@ -314,22 +338,6 @@
                         <button class="settings-tab" data-settings-tab="stats">Statistics</button>
                     </div>
 
-                    <!-- Removed Profile Panel from here, logic moved to sidebar/modal if needed, 
-                         but user asked to move it out. We will keep profile edit in a modal or separate view if requested, 
-                         but for now let's keep the edit fields in a "Profile" settings tab? 
-                         User said "get the profile out of setting & add it to side bar". 
-                         Usually means access to profile. Editing might still be in settings or a modal.
-                         Let's keep a simplified Profile Edit in settings or separate.
-                         Wait, user said "Profile out of setting". 
-                         I will keep the "Profile Panel" content but maybe accessible via clicking the sidebar profile?
-                         For now, let's keep the Settings structure cleaner without the main Profile tab causing confusion.
-                         I will move the Profile Edit logic to a modal later or keep it as a hidden panel triggered by sidebar.
-                         Actually, let's keep the 'Profile' tab in settings for EDITING, but the main access is sidebar.
-                         User said "get the profile out of setting", implies removing it.
-                         I'll remove the Profile tab from Settings and make clicking the Sidebar Profile open a Profile View or Modal.
-                         For this step, I'll stick to the plan: Move Profile to sidebar.
-                    -->
-
                     <!-- Themes Panel -->
                     <div class="settings-panel active" id="themes-panel">
                         <div class="setting-item">
@@ -582,6 +590,43 @@
 
                 </div>
             </section>
+
+            <!-- Profile View -->
+            <section id="profile-view" class="view">
+                <h2>My Profile</h2>
+                <div class="profile-container">
+                    <div class="profile-header-card">
+                        <div class="profile-avatar-container">
+                            <img src="" alt="Profile" id="settings-profile-img">
+                            <button class="edit-avatar-btn"><i class="material-icons">camera_alt</i></button>
+                        </div>
+                        <div class="profile-info-display">
+                            <h3 id="settings-profile-name">User Name</h3>
+                            <p id="settings-profile-email">user@example.com</p>
+                            <div class="profile-badges">
+                                <span class="badge premium">Premium</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-edit-section">
+                        <h3>Edit Profile</h3>
+                        <div class="input-group">
+                            <label for="edit-display-name">Display Name</label>
+                            <input type="text" id="edit-display-name" placeholder="Enter your name">
+                        </div>
+                        <div class="input-group">
+                            <button id="save-profile-btn" class="primary-btn">Save Changes</button>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button id="sign-out-btn" class="danger-btn">
+                            <i class="material-icons">logout</i> Sign Out
+                        </button>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <!-- Bottom Player Bar -->
@@ -718,11 +763,19 @@
     <script src="db-manager.js"></script>
     <!-- External Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.min.js"></script>
-    <script src="music-list.js"></script>
-    <script src="lyrics.js"></script>
-    <script src="visualizer.js"></script>
-    <script src="theme-manager.js"></script>
-    <script src="music-Scripts.js"></script>
+    <script src="music-list.js?v=5.0.0"></script>
+    <script src="lyrics.js?v=5.0.0"></script>
+    <script src="visualizer.js?v=5.0.0"></script>
+    <script src="theme-manager.js?v=5.0.0"></script>
+    <script src="js/utils.js?v=5.0.0"></script>
+    <script src="js/globals.js?v=5.0.0"></script>
+    <script src="js/ui-controller.js?v=5.0.0"></script>
+    <script src="js/player-core.js?v=5.0.0"></script>
+    <script src="js/library-manager.js?v=5.0.0"></script>
+    <script src="js/queue-visualizer.js?v=5.0.0"></script>
+    <script src="js/playlist-manager.js?v=5.0.0"></script>
+    <script src="js/profile-manager.js?v=5.0.0"></script>
+    <script src="music-Scripts.js?v=5.0.0"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

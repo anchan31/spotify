@@ -50,6 +50,8 @@ function signInWithGoogle() {
     if (!auth) initAuth();
 
     const provider = new firebase.auth.GoogleAuthProvider();
+    const usernameInput = document.getElementById('login-username');
+    const customUsername = (usernameInput && !isLoginMode) ? usernameInput.value.trim() : null;
 
     // Show loading state if UI element exists
     const loginBtn = document.getElementById('google-login-btn');
@@ -59,9 +61,28 @@ function signInWithGoogle() {
     if (btnText) btnText.textContent = 'Signing in...';
 
     auth.signInWithPopup(provider)
-        .then((result) => {
+        .then(async (result) => {
             // User signed in
             console.log("Google Sign-In Successful");
+
+            // Handle Custom Username for New Users
+            if (result.additionalUserInfo && result.additionalUserInfo.isNewUser && customUsername) {
+                try {
+                    await result.user.updateProfile({ displayName: customUsername });
+                    // Also update Firestore if needed (db-manager handles this usually, but we can double check)
+                    // The ensureUserInitialized in db-manager might run on auth state change.
+                    // We can explicitly update the doc here to be safe.
+                    if (typeof db !== 'undefined') {
+                        await db.collection('users').doc(result.user.uid).set({
+                            displayName: customUsername
+                        }, { merge: true });
+                    }
+                    console.log("Applied custom username to Google account:", customUsername);
+                } catch (err) {
+                    console.error("Error setting custom username for Google user:", err);
+                }
+            }
+
             // The onAuthStateChanged listener will handle the transition
         })
         .catch((error) => {
@@ -95,15 +116,19 @@ function signOutUser() {
 
 // UI Handlers
 function handleUserSignedIn(user) {
+    // Show Loading Screen first
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        loadingScreen.classList.add('visible');
+    }
+
     // Hide login page
     const loginOverlay = document.getElementById('login-overlay');
     const appContainer = document.querySelector('.app-container');
 
     if (loginOverlay) {
-        loginOverlay.classList.add('fade-out');
-        setTimeout(() => {
-            loginOverlay.style.display = 'none';
-        }, 500); // Match transition duration
+        loginOverlay.style.display = 'none'; // Hide immediately behind loading screen
+        loginOverlay.classList.remove('fade-out'); // Reset class
     }
 
     if (appContainer) {
@@ -148,6 +173,7 @@ function toggleAuthMode() {
     const toggleBtn = document.getElementById('toggle-auth-mode');
     const toggleText = toggleBtn.parentElement; // The <p> containing the span
     const errorMsg = document.getElementById('login-error-msg');
+    const usernameInput = document.getElementById('login-username');
 
     if (errorMsg) errorMsg.style.display = 'none';
 
@@ -157,12 +183,17 @@ function toggleAuthMode() {
         submitBtn.textContent = 'Log In';
         toggleBtn.textContent = 'Sign Up';
         toggleText.childNodes[0].nodeValue = "Don't have an account? ";
+        if (usernameInput) usernameInput.style.display = 'none';
     } else {
         title.textContent = 'Create Account';
         subtitle.textContent = 'Sign up to start listening';
         submitBtn.textContent = 'Sign Up';
         toggleBtn.textContent = 'Log In';
         toggleText.childNodes[0].nodeValue = "Already have an account? ";
+        if (usernameInput) {
+            usernameInput.style.display = 'block';
+            usernameInput.focus();
+        }
     }
 }
 
@@ -171,12 +202,15 @@ function signInWithEmail() {
 
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
+    const usernameInput = document.getElementById('login-username');
+    const username = usernameInput ? usernameInput.value.trim() : '';
+
     const errorDisplay = document.getElementById('login-error-msg');
     const submitBtn = document.getElementById('email-login-btn');
 
-    if (!email || !password) {
+    if (!email || !password || (!isLoginMode && !username)) {
         if (errorDisplay) {
-            errorDisplay.textContent = 'Please enter both email and password.';
+            errorDisplay.textContent = !isLoginMode && !username ? 'Please enter a username.' : 'Please enter both email and password.';
             errorDisplay.style.display = 'block';
         }
         return;
@@ -200,8 +234,18 @@ function signInWithEmail() {
     } else {
         // Sign Up
         auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
+            .then(async (userCredential) => {
                 console.log("Email Sign-Up Successful");
+                const user = userCredential.user;
+                // Set Display Name immediately
+                if (username) {
+                    try {
+                        await user.updateProfile({ displayName: username });
+                        console.log("Display name set to:", username);
+                    } catch (err) {
+                        console.error("Error setting display name:", err);
+                    }
+                }
                 // onAuthStateChanged will handle the rest
             })
             .catch((error) => {

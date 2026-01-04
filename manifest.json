@@ -1,6 +1,6 @@
 {
-  "name": "Spotify Music Player v4.0.0",
-  "short_name": "Spotify v4",
+  "name": "Spotify Music Player v5.0.0",
+  "short_name": "Spotify v5",
   "description": "A premium, glassmorphism-inspired music player.",
   "start_url": "./index.html",
   "display": "standalone",
@@ -9,7 +9,7 @@
   "icons": [
     {
       "src": "Favicon.png",
-      "sizes": "192x192 512x512",
+      "sizes": "32x32",
       "type": "image/png",
       "purpose": "any"
     }
